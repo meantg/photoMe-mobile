@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8"/>
+    <PackageReference Include="newtonsoft.json" Version="12.0.3"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.8"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="3.1.8"/>
+    <PackageReference Include="AutoMapper" Version="10.0.0"/>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8"/>
+    <PackageReference Include="CloudinaryDotNet" Version="1.13.1"/>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.0"/>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1"/>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.7.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8"/>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0"/>
+  </ItemGroup>
+</Project>

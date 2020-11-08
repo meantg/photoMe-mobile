@@ -1,0 +1,34 @@
+[
+  {
+    'repeat(10)': {
+    Gender: 'female',
+    DateOfBirth: '{{moment(this.date(new Date(2014, 0, 1), new Date())).format("YYYY-MM-DD")}}',
+    Password: 'password',
+    Role: '{{random("Photographer", "Model")}}',
+    firstname: '{{firstName("female")}}',
+    surname: '{{surname("female")}}',
+    Email: function() {
+    	return `${this.firstname}.${this.surname}@gmail.com`.toLowerCase();
+    },
+    Username: function() {
+    	return `${this.firstname}`.toLowerCase();
+    },
+    Name: function(){ return `${this.surname} ${this.firstname}`; },
+    CreatedAt: '{{moment(this.date(new Date(2014, 0, 1), new Date())).format("YYYY-MM-DD")}}',
+    LastActive: function(){return this.Created; },
+    Introduction: '{{lorem(1, "paragraphs")}}',
+    LookingFor: '{{lorem(1, "paragraphs")}}',
+    Interests: '{{lorem(1, "sentences")}}',
+    Phone: '{{phone()}}',
+    Address: '{{integer(100, 999)}} {{street()}}',
+    City: '{{city()}}',
+    Country: '{{country()}}',
+    Avatar: 
+        {
+          url: function(num) {
+          return 'https://randomuser.me/api/portraits/men/' + num.integer(1,99) + '.jpg';
+        },
+      }
+  }
+ } 
+]
