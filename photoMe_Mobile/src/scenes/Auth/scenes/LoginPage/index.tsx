@@ -44,7 +44,7 @@ export default function LoginPage({ navigation }: any) {
         { cancelable: false }
       );
     } else {
-      const url = "http://localhost:5000/api/auth/Login";
+      const url = "http://10.0.2.2:5000/api/auth/Login";
       const data = { userName: email, password: password };
       const config = {
         headers: {
@@ -61,6 +61,8 @@ export default function LoginPage({ navigation }: any) {
           navigation.navigate("Loading");
         }
       } catch (err) {
+        console.error(err);
+        
         Alert.alert(
           "Email or Password is incorrect",
           "Please enter correct email and password !",

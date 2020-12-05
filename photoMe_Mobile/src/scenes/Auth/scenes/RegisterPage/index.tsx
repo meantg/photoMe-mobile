@@ -35,7 +35,7 @@ export default function RegisterPage({ navigation }: any) {
         { cancelable: false }
       );
     } else {
-      fetch("http://10.0.2.2:5000/api/auth/Register", {
+      fetch("http://localhost:5000/api/auth/Register", {
         method: "POST",
         headers: {
           Accept: "application/json",

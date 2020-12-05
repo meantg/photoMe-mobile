@@ -1,31 +1,17 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Dimensions } from "react-native";
 import Carousel from "react-native-banner-carousel";
+import Slider from "../Slider/Slider";
 
 let deviceWidth = Dimensions.get("window").width;
-const images = [
-  "https://images.unsplash.com/photo-1567226475328-9d6baaf565cf?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
-  "https://images.unsplash.com/photo-1455620611406-966ca6889d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1130&q=80",
-];
-type CardProps = {
-  image: string;
-  userName: string;
-};
 
-function CardItem(props: any) {
-  const renderPage = (image, index) => {
-    return (
-      <View key={index}>
-        <Image
-          style={{ width: deviceWidth, height: 300 }}
-          source={{ uri: image }}
-        />
-      </View>
-    );
-  };
+function CardItem({ album }) {
+  const photos = album["photos"];
+  const photographer = album["photographer"];
+
   return (
     <View style={[styles.container]}>
       <View style={styles.cardItem1Style}>
@@ -35,21 +21,18 @@ function CardItem(props: any) {
             style={styles.leftImage}
           ></Image>
           <View style={styles.headerContent}>
-            <Text style={styles.textStyle}>meantg</Text>
-            <Text style={styles.noteTextStyle}>Da Lat, Lam Dong</Text>
+            <Text style={styles.textStyle}>
+              {photographer.name} : {photographer.role}
+            </Text>
+            <Text style={styles.noteTextStyle}>
+              {photographer.city} {photographer.country}
+            </Text>
           </View>
         </View>
       </View>
-      <Carousel
-        autoplay={false}
-        index={0}
-        pageSize={deviceWidth}
-        showsPageIndicator={true}
-      >
-        {images.map((image, index) => renderPage(image, index))}
-      </Carousel>
+      <Slider key={photos["id"]} photos={photos}></Slider>
       <View style={styles.likeBody}>
-        <Text style={styles.like}>15 lượt thích</Text>
+        <Text style={styles.like}>{album.likesNumber} lượt thích</Text>
       </View>
       <View style={styles.actionBody}>
         <TouchableOpacity style={styles.actionButton1}>
@@ -61,8 +44,13 @@ function CardItem(props: any) {
       </View>
       <View style={styles.body}>
         <Text style={styles.bodyText}>
-          <Text style={styles.like}>meantg </Text>
-          Welcome to photoMe
+          <Text style={styles.like}>{photographer.username} </Text>
+          {album.title} 
+        </Text>
+      </View>
+      <View style={styles.body}>
+        <Text style={styles.bodyText}>
+          <Text>{album.albumType} </Text>
         </Text>
       </View>
       <View style={styles.body}>

@@ -33,8 +33,6 @@ export default function App() {
     //   console.log("setLogin");
     //   setLogin(true);
     // }
-    // setToken(token);
-    // return token;
   }
 
   React.useEffect(() => {
@@ -61,7 +59,7 @@ export default function App() {
                 },
                 headerTitleStyle: {
                   alignSelf: "center",
-                  fontSize: deviceWidth / 15,
+                  fontSize: deviceWidth / 13,
                   marginBottom: 10,
                 },
                 headerShown: true,
@@ -82,12 +80,12 @@ export default function App() {
                 },
                 headerTitleStyle: {
                   alignSelf: "center",
-                  fontSize: deviceWidth / 15,
+                  fontSize: deviceWidth / 13,
                   marginBottom: 10,
                 },
                 headerShown: true,
                 headerBackTitleVisible: true,
-                headerLeft: () => <ToHome />,
+                headerLeft: (navigation) => <ToHome />,
                 headerRight: () => <ToSettings />,
               }}
             />
@@ -113,6 +111,7 @@ function ToSettings() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   header: {

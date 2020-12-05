@@ -1,9 +1,8 @@
-import React, { Component } from "react";
-import { StyleSheet, View, Image } from "react-native";
+import React from "react";
+import { View, Image, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import AlbumCard from "../../../components/AlbumCard";
 
-function AlbumItem() {
+function AlbumCard() {
   return (
     <View style={styles.imgContainer}>
       <MaterialCommunityIcons
@@ -13,28 +12,10 @@ function AlbumItem() {
         style={{ position: "absolute", right: 5, top: 5, color: "#d3caca" }}
       />
       <Image
-        source={require("../../../images/iconapp.png")}
+        source={require("../../images/iconapp.png")}
         resizeMode="contain"
         style={styles.image}
       ></Image>
-    </View>
-  );
-}
-
-function AlbumGrid() {
-  return (
-    <View style={styles.container}>
-      <View style={styles.group2Column}>
-        <View style={styles.group2}>
-          <AlbumCard />
-          <AlbumCard />
-          <AlbumCard />
-        </View>
-        <View style={styles.group2}>
-          <AlbumCard />
-          <AlbumCard />
-        </View>
-      </View>
     </View>
   );
 }
@@ -57,13 +38,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(236,231,231,1)",
     borderStyle: "solid",
-  },
-  group2Column: {},
-
-  group2ColumnFiller: {
-    flex: 1,
-    justifyContent: "center",
-  },
+  }
 });
 
-export default AlbumGrid;
+export default AlbumCard;

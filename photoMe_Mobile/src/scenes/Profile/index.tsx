@@ -1,38 +1,90 @@
 import React, { Component } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/FontAwesome";
 import TabAlbum from "../../components/TabAlbum";
+import jwt_decode from "jwt-decode";
+import Axios from "axios";
+import UserModel from "../../values/models/UserModel";
+import { useSelector, dispatch } from "react-redux";
+import { setUser } from "../../services/redux/slices/userSlices";
+import { RootState } from "../../services/redux/reducer";
 
 function ProfilePage({ navigation }: any) {
+  const user = useSelector((state: RootState) => state.user);
+
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("ProfilePage");
     });
+    getToken();
 
     return unsubscribe;
   }, [navigation]);
 
+  async function getUser() {
+    const token = await AsyncStorage.getItem("userToken");
+    console.log(token);
+
+    if (token != null) {
+      var decoded: any = jwt_decode(token);
+      const url = "http://10.0.2.2:5000/api/user/" + decoded.nameid;
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      };
+      try {
+        const response = Axios.get(url, config);
+        if ((await response).status == 200) {
+          const userModel: UserModel = (await response).data.user;
+          dispatch(setUser(userModel));
+        }
+      } catch (err) {
+        // console.log(err);
+      }
+    } else {
+      const url = "http://10.0.2.2:5000/api/user/" + user.id;
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      };
+      try {
+        const response = Axios.get(url, config);
+        console.log((await response).data);
+      } catch (err) {
+        //   console.log(err);
+      }
+    }
+  }
+
+  const getToken = async () => {
+    const token = await AsyncStorage.getItem("userToken");
+    console.log(token);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.infoContainer}>
-      <View style={styles.groupRow}>
-        <Icon name="user-circle" style={styles.icon}></Icon>
-        <View style={styles.meantg1Column}>
-          <Text style={styles.meantg1}>Meantg</Text>
-          <Text style={styles.photographer}>Photographer</Text>
-          <Text style={styles.loremIpsum}>#hashtag #animals #love</Text>
+        <View style={styles.groupRow}>
+          <Icon name="user-circle" style={styles.icon}></Icon>
+          <View style={styles.meantg1Column}>
+            <Text style={styles.meantg1}>{user.name}</Text>
+            <Text style={styles.photographer}>Photographer</Text>
+            <Text style={styles.loremIpsum}>#hashtag #animals #love</Text>
+          </View>
+        </View>
+        <View style={styles.personalInfo}>
+          <Text style={styles.thongTinCaNhan}>THÔNG TIN CÁ NHÂN</Text>
+          <Text style={styles.vịTri}>Vị trí : {user.address}</Text>
+          <Text style={styles.tuổi}>Tuổi : {user.age}</Text>
+          <Text style={styles.sdt}>SĐT : {user.phone}</Text>
+          <Text style={styles.email}>Email : {user.email}</Text>
         </View>
       </View>
-      <View style={styles.personalInfo}>
-        <Text style={styles.thongTinCaNhan}>THÔNG TIN CÁ NHÂN</Text>
-        <Text style={styles.vịTri}>Vị trí :</Text>
-        <Text style={styles.tuổi}>Tuổi :</Text>
-        <Text style={styles.sdt}>SĐT :</Text>
-        <Text style={styles.email}>Email :</Text>
-      </View>
-      </View>
       <TouchableOpacity style={[styles.btnContact]}>
-        <Text style={styles.contactNow}>Contact Now</Text>
+        <Text style={styles.contactNow}>Contact Now !</Text>
       </TouchableOpacity>
       <TabAlbum></TabAlbum>
     </View>
@@ -40,8 +92,8 @@ function ProfilePage({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  infoContainer:{
-    marginLeft: '15%'
+  infoContainer: {
+    marginLeft: "15%",
   },
   btnContact: {
     maxWidth: 400,
@@ -61,7 +113,8 @@ const styles = StyleSheet.create({
   },
   contactNow: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 17,
+    fontWeight: "600",
     alignSelf: "center",
   },
   caption: {
@@ -83,7 +136,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   meantg1Column: {
-    width: 158,
     marginLeft: 19,
     marginBottom: 6,
   },
