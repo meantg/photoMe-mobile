@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import * as Icon from "@expo/vector-icons";
+import CONNECTION_STRING from "../../../../values/ConnectionString";
 
 export default function RegisterPage({ navigation }: any) {
   React.useEffect(() => {
@@ -35,7 +36,7 @@ export default function RegisterPage({ navigation }: any) {
         { cancelable: false }
       );
     } else {
-      fetch("http://localhost:5000/api/auth/Register", {
+      fetch("http://"+ CONNECTION_STRING.string +":5000/api/auth/Register", {
         method: "POST",
         headers: {
           Accept: "application/json",

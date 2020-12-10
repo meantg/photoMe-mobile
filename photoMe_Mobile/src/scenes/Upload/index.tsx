@@ -7,18 +7,22 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { RootState } from "../../services/redux/reducer";
-import { useSelector, dispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { AntDesign } from "@expo/vector-icons";
 import AlbumModel from "../../values/models/AlbumModel";
-import {Ionicons} from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Axios from "axios";
+import CONNECTION_STRING from "../../values/ConnectionString";
+import { useScrollToTop } from "@react-navigation/native";
+import * as Permissions from "expo-permissions";
+import RNFetchBlob from 'rn-fetch-blob';
 
 type _Image = {
-  localUri: string;
+  localUri: string | undefined;
 };
 
 function UploadPage({ navigation }) {
@@ -33,7 +37,24 @@ function UploadPage({ navigation }) {
   const [albumType, onChangeDes] = React.useState("Describe your pic ");
   const [desHeight, setHeight] = React.useState(40);
 
+  React.useEffect(() => {
+    setSelectedImage(null);
+    const unsubscribe = navigation.addListener("focus", () => {
+      console.log("Upload Page");
+    });
+  }, []);
+
+  const getPermissionAsync = async () => {
+    if (Platform.OS == "ios") {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status !== "granted") {
+        alert("Sorry, we need camera roll permissions to make this work!");
+      }
+    }
+  };
+
   let openImage = async () => {
+    getPermissionAsync();
     let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
 
     if (permissionResult.granted === false) {
@@ -43,16 +64,23 @@ function UploadPage({ navigation }) {
 
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [1, 1],
       base64: true,
     });
 
     if (pickerResult.cancelled === true) {
       return;
     } else if (!pickerResult.cancelled) {
-      setSelectedImage({ localUri: pickerResult.uri });
+      console.log(pickerResult.uri)
+      if (Platform.OS == "web") {
+        setSelectedImage({ localUri: pickerResult.uri });
+        console.log(pickerResult.uri);
+        
+      } else {
+        setSelectedImage({ localUri: pickerResult.uri });
+        
+      }
     }
-    console.log(pickerResult);
   };
 
   function DataURIToBlob(dataURI: string) {
@@ -70,24 +98,67 @@ function UploadPage({ navigation }) {
     return new Blob([ia], { type: mimeString });
   }
 
+  const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+    const byteCharacters = atob(b64Data);
+    const byteArrays : Uint8Array[] = [];
+  
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+  
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+  
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+  
+    const blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+  }
+
   const uploadImage = async () => {
     const token = await AsyncStorage.getItem("userToken");
 
     const data = new FormData();
     if (selectedImage?.localUri != null) {
-      const image = DataURIToBlob(selectedImage?.localUri);
-      data.append("Files", image, "test.png");
+      // const image = DataURIToBlob(selectedImage.localUri);
+      if (Platform.OS == "web") {
+        const image = DataURIToBlob(selectedImage.localUri);
+        data.append("Files", image);
+      }
+      else {
+        
+        
+        // console.log(fileURL);
+        const path = selectedImage.localUri.replace("file:///", "");
+        const blob =  RNFetchBlob.wrap(path);
+        console.log('blog');
+        
+        console.log(blob);
+        
+        data.append("Files",  blob );
+      }
       data.append("Title", title);
       data.append("AlbumType", albumType);
+
     }
 
     const url =
-      "http://10.0.2.2:5000/api/user/" + user.id + "/albums/upload-album";
+      "http://" +
+      CONNECTION_STRING.string +
+      "/api/user/" +
+      user.id +
+      "/albums/upload-album";
     const config = {
       headers: {
         Authorization: "Bearer " + token,
+        'Content-Type': 'multipart/form-data',
       },
     };
+
+    console.log(data);
 
     try {
       const response = Axios.post(url, data, config);
@@ -132,7 +203,12 @@ function UploadPage({ navigation }) {
           value={title}
         />
         <Image
-          source={{ uri: selectedImage.localUri }}
+          source={{
+            uri:
+              Platform.OS == "web"
+                ? selectedImage.localUri
+                : 'data:image/jpeg;base64,'+ selectedImage.localUri,
+          }}
           style={styles.thumbnail}
         />
         <TextInput
@@ -165,53 +241,12 @@ function UploadPage({ navigation }) {
       <TouchableOpacity onPress={openImage}>
         <Text>Hello</Text>
       </TouchableOpacity>
-      {/* <AssetsSelector
-            options={{
-                assetsType: ['photo', 'video'],
-                noAssetsText: 'No media found.',
-                maxSelections: 5,
-                margin: 3,
-                portraitCols: 4,
-                landscapeCols: 5,
-                widgetWidth: 100,
-                widgetBgColor: '#23254',
-                videoIcon: {
-                    Component: Ionicons,
-                    iconName: 'ios-videocam',
-                    color: 'white',
-                    size: 20,
-                },
-                selectedIcon: {
-                    Component: Ionicons,
-                    iconName: 'ios-checkmark-circle-outline',
-                    color: 'white',
-                    bg: '#ffffff50',
-                    size: 22,
-                },
-                defaultTopNavigator: {
-                    continueText: 'Finish',
-                    goBackText: 'Back',
-                    buttonBgColor: 'black',
-                    buttonTextColor: '#ffffff50',
-                    midTextColor: 'black',
-                    backFunction: ()=>{ navigation.navigator("Home")},
-                    doneFunction: ()=>{ navigation.navigator("Home")},
-                },
-                noAssets:{
-                    Component:CustomNoAssetsComponent
-                },
-            }}
-        /> */}
     </View>
   );
 }
 
-function CustomNoAssetsComponent(){
-  return(
-    <View>
-      CustomNoAssetsComponent
-    </View>
-  )
+function CustomNoAssetsComponent() {
+  return <View>CustomNoAssetsComponent</View>;
 }
 
 const styles = StyleSheet.create({
@@ -268,6 +303,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   container: {
+    overflow: "scroll",
     justifyContent: "center",
     alignItems: "center",
     width: "100%",

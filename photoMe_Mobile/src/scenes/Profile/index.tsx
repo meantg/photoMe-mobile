@@ -9,6 +9,7 @@ import UserModel from "../../values/models/UserModel";
 import { useSelector, dispatch } from "react-redux";
 import { setUser } from "../../services/redux/slices/userSlices";
 import { RootState } from "../../services/redux/reducer";
+import CONNECTION_STRING from "../../values/ConnectionString";
 
 function ProfilePage({ navigation }: any) {
   const user = useSelector((state: RootState) => state.user);
@@ -28,7 +29,7 @@ function ProfilePage({ navigation }: any) {
 
     if (token != null) {
       var decoded: any = jwt_decode(token);
-      const url = "http://10.0.2.2:5000/api/user/" + decoded.nameid;
+      const url = "http://"+ CONNECTION_STRING.string +":5000/api/user/" + decoded.nameid;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -44,7 +45,7 @@ function ProfilePage({ navigation }: any) {
         // console.log(err);
       }
     } else {
-      const url = "http://10.0.2.2:5000/api/user/" + user.id;
+      const url = "http://"+ CONNECTION_STRING.string +":5000/api/user/" + user.id;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
   },
   btnContact: {
     maxWidth: 400,
-    width: "80vw",
+    width: "80%",
     height: 36,
     backgroundColor: "#e8a772",
     justifyContent: "center",
@@ -191,7 +192,6 @@ const styles = StyleSheet.create({
     marginRight: 0,
     marginLeft: 0,
     marginTop: 0,
-    margin: "null",
   },
   vịTri: {
     fontFamily: "roboto-regular",
@@ -199,7 +199,6 @@ const styles = StyleSheet.create({
     marginRight: 0,
     marginLeft: 0,
     marginTop: 0,
-    margin: "null",
   },
   tuổi: {
     fontFamily: "roboto-regular",
@@ -207,7 +206,6 @@ const styles = StyleSheet.create({
     marginRight: 0,
     marginLeft: 0,
     marginTop: 0,
-    margin: "null",
   },
   sdt: {
     fontFamily: "roboto-regular",
@@ -215,7 +213,6 @@ const styles = StyleSheet.create({
     marginRight: 0,
     marginLeft: 0,
     marginTop: 0,
-    margin: "null",
   },
   email: {
     fontFamily: "roboto-regular",
@@ -223,7 +220,6 @@ const styles = StyleSheet.create({
     marginRight: 0,
     marginLeft: 0,
     marginTop: 0,
-    margin: "null",
   },
   materialButtonPrimary: {
     height: 36,

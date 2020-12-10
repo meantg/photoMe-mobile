@@ -13,19 +13,18 @@ import {
   View,
   Dimensions,
 } from "react-native";
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import UserModel from "../../../../values/models/UserModel";
 import { setUser } from "../../../../services/redux/slices/userSlices";
 import { RootState } from "../../../../services/redux/reducer";
+import CONNECTION_STRING from "../../../../values/ConnectionString";
 
 let deviceWidth = Dimensions.get("window").width;
 
 export default function LoginPage({ navigation }: any) {
-
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const dispatch = useDispatch();
-
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
@@ -36,6 +35,8 @@ export default function LoginPage({ navigation }: any) {
   }, [navigation]);
 
   const login = async () => {
+    console.log("log in");
+
     if (email === "" || password === "") {
       Alert.alert(
         "Login Form not completed",
@@ -44,25 +45,27 @@ export default function LoginPage({ navigation }: any) {
         { cancelable: false }
       );
     } else {
-      const url = "http://10.0.2.2:5000/api/auth/Login";
+      const url = "http://" + CONNECTION_STRING.string + "/api/auth/Login";
       const data = { userName: email, password: password };
       const config = {
         headers: {
-          "Content-Type": "application/json",
+          "Content-type": "Application/json",
         },
       };
       try {
+        console.log("call api");
+
         const response = await axios.post(url, data, config);
         if (response.status == 200) {
-          const token = (response.data).token;
+          const token = response.data.token;
           await AsyncStorage.setItem("userToken", token);
-          const userModel : UserModel = response.data.user;
+          const userModel: UserModel = response.data.user;
           dispatch(setUser(userModel));
           navigation.navigate("Loading");
         }
       } catch (err) {
         console.error(err);
-        
+
         Alert.alert(
           "Email or Password is incorrect",
           "Please enter correct email and password !",

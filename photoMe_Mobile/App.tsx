@@ -18,6 +18,13 @@ import { Entypo, Foundation } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import store from "./src/services/redux/store";
 import { Provider } from "react-redux";
+import {decode, encode} from 'base-64'
+
+const globalAny: any = global;
+if (!global.btoa) {  global.btoa = encode }
+
+if (!global.atob) { global.atob = decode }
+
 
 const Stack = createStackNavigator();
 let deviceWidth = Dimensions.get("window").width;

@@ -1,6 +1,5 @@
-import React, { Component } from "react";
+import React from "react";
 import { View, ScrollView, Image, StyleSheet, Dimensions } from "react-native";
-import { Constants } from "expo";
 
 const { width } = Dimensions.get("window");
 const height = width * 0.8;
@@ -18,7 +17,7 @@ function Slider( {photos} ) {
           indicatorStyle='white'
         >
           {images.map((image) => (
-            <Image key={image["id"]} style={styles.image} source={image.url} />
+            <Image key={image["id"]} style={styles.image} source={{uri :image["url"]}} />
           ))}
         </ScrollView>
       </View>
@@ -40,7 +39,7 @@ const styles = StyleSheet.create({
     height,
   },
   image: {
-    width,
+    width ,
     height,
   },
 });

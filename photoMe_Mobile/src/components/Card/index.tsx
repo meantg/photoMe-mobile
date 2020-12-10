@@ -1,16 +1,102 @@
-import React, { Component, useEffect } from "react";
+import React from "react";
 import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Dimensions } from "react-native";
-import Carousel from "react-native-banner-carousel";
 import Slider from "../Slider/Slider";
+import jwt_decode from "jwt-decode";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CONNECTION_STRING from "../../values/ConnectionString";
+import Axios from "axios";
+import { useSelector, dispatch } from "react-redux";
+import { RootState } from "../../services/redux/reducer";
 
 let deviceWidth = Dimensions.get("window").width;
 
 function CardItem({ album }) {
   const photos = album["photos"];
   const photographer = album["photographer"];
+  const [likeColor, setLikeColor] = React.useState("grey");
+  const [likeNumber, setLike] = React.useState(album.likesNumber);
+  const user = useSelector((state: RootState) => state.user);
+
+  React.useEffect(() => {
+    getLikes();
+  }, []);
+
+  const getLikes = async () => {
+    const token = await AsyncStorage.getItem("userToken");
+    if (token != null) {
+      var decoded: any = jwt_decode(token);
+      const url =
+        "http://" +
+        CONNECTION_STRING.string +
+        "/api/user/" +
+        user.id +
+        "/likes/" +
+        album.id;
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      };
+      try {
+        const response = Axios.get(url, config);
+        if ((await response).status == 200) {
+          const data = (await response).data;
+          console.log(data);
+
+          if (data.makerId != null) {
+            user.id === data.makerId
+              ? setLikeColor("blue")
+              : setLikeColor("grey");
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
+
+  const onPressLike = () => {
+    if (likeColor == "blue") {
+      setLikeColor("grey"), setLike(likeNumber - 1);
+    } else {
+      setLikeColor("blue"), setLike(likeNumber + 1);
+    }
+    likeAlbum(album.id);
+  };
+
+  const likeAlbum = async (albumID) => {
+    const token = await AsyncStorage.getItem("userToken");
+    if (token != null) {
+      var decoded: any = jwt_decode(token);
+      const url =
+        "http://" +
+        CONNECTION_STRING.string +
+        ":5000/api/user/" +
+        user.id +
+        "/likes/like-album";
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      };
+      const body = {
+        AlbumId: albumID,
+        MakerId: user.id,
+      };
+      try {
+        const response = Axios.post(url, body, config);
+        if ((await response).status == 200) {
+          console.log("da like album" + album.title);
+          console.log(album);
+        }
+      } catch (err) {
+        // console.log(err);
+      }
+    }
+  };
 
   return (
     <View style={[styles.container]}>
@@ -32,11 +118,15 @@ function CardItem({ album }) {
       </View>
       <Slider key={photos["id"]} photos={photos}></Slider>
       <View style={styles.likeBody}>
-        <Text style={styles.like}>{album.likesNumber} lượt thích</Text>
+        <Text style={styles.like}>
+          {likeNumber == 0
+            ? "Chưa có ai thích album này "
+            : likeNumber + "người đã thích"}
+        </Text>
       </View>
       <View style={styles.actionBody}>
-        <TouchableOpacity style={styles.actionButton1}>
-          <AntDesign name="like2" size={24} color="black" />
+        <TouchableOpacity onPress={onPressLike} style={styles.actionButton1}>
+          <AntDesign name="like1" size={24} color={likeColor} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton2}>
           <FontAwesome name="comments-o" size={24} color="black" />
@@ -45,7 +135,7 @@ function CardItem({ album }) {
       <View style={styles.body}>
         <Text style={styles.bodyText}>
           <Text style={styles.like}>{photographer.username} </Text>
-          {album.title} 
+          {album.title}
         </Text>
       </View>
       <View style={styles.body}>

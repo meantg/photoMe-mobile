@@ -1,6 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { Component } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import CardItem from "../../../components/Card";
 import { useSelector, dispatch } from "react-redux";
 import { RootState } from "../../../services/redux/reducer";
@@ -9,10 +16,18 @@ import jwt_decode from "jwt-decode";
 import UserModel from "../../../values/models/UserModel";
 import { setUser } from "../../../services/redux/slices/userSlices";
 import AlbumModel from "../../../values/models/AlbumModel";
+import CONNECTION_STRING from "../../../values/ConnectionString";
+import { useScrollToTop } from "@react-navigation/native";
 
 type AlbumState = {
   albums: AlbumModel[];
   loading: boolean;
+};
+
+const wait = (timeout) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeout);
+  });
 };
 
 function HomeScreen({ navigation }: any) {
@@ -24,6 +39,16 @@ function HomeScreen({ navigation }: any) {
 
   const [state, setState] = React.useState<AlbumState>(INITIAL_STATE);
   const { albums, loading } = state;
+  const ref = React.useRef(null);
+  useScrollToTop(ref);
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
@@ -39,13 +64,21 @@ function HomeScreen({ navigation }: any) {
     return unsubscribe;
   }, [loading]);
 
+  React.useEffect(() => {
+    console.log("Test");
+  }, [albums, loading]);
+
   async function getUser() {
     const token = await AsyncStorage.getItem("userToken");
     console.log(token);
 
     if (token != null) {
       var decoded: any = jwt_decode(token);
-      const url = "http://10.0.2.2:5000/api/user/" + decoded.nameid;
+      const url =
+        "http://" +
+        CONNECTION_STRING.string +
+        ":5000/api/user/" +
+        decoded.nameid;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -58,10 +91,11 @@ function HomeScreen({ navigation }: any) {
           dispatch(setUser(userModel));
         }
       } catch (err) {
-        // console.log(err);
+        console.log(err);
       }
     } else {
-      const url = "http://10.0.2.2:5000/api/user/" + user.id;
+      const url =
+        "http://" + CONNECTION_STRING.string + ":5000/api/user/" + user.id;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -71,7 +105,7 @@ function HomeScreen({ navigation }: any) {
         const response = Axios.get(url, config);
         console.log((await response).data);
       } catch (err) {
-        //   console.log(err);
+        console.log(err);
       }
     }
   }
@@ -86,7 +120,11 @@ function HomeScreen({ navigation }: any) {
         },
       };
       const url =
-        "http://10.0.2.2:5000/api/user/" + decoded.nameid + "/albums/all";
+        "http://" +
+        CONNECTION_STRING.string +
+        "/api/user/" +
+        decoded.nameid +
+        "/albums/all";
       const response = await Axios.get(url, config);
       const album = response.data;
       setState({
@@ -97,20 +135,32 @@ function HomeScreen({ navigation }: any) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.group}>
-        {albums.map((album) => (
-          <CardItem key={album["id"]} album={album}/>
-        ))}
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <ScrollView
+          ref={ref}
+          style={{ flex: 1 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />
+          }
+        >
+          <View style={styles.group}>
+            {albums.map((album) => (
+              <CardItem key={album["id"]} album={album} />
+            ))}
+          </View>
+        </ScrollView>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    overflow: "scroll",
     justifyContent: "flex-start",
     alignItems: "center",
   },

@@ -9,6 +9,7 @@ import jwt_decode from "jwt-decode";
 import AlbumModel from "../../../values/models/AlbumModel";
 import { RootState } from "../../../services/redux/reducer";
 import { setUser } from "../../../services/redux/slices/userSlices";
+import CONNECTION_STRING from "../../../values/ConnectionString";
 
 type AlbumState = {
   albums: AlbumModel[];
@@ -39,7 +40,7 @@ function AllPhotos() {
 
     if (token != null) {
       var decoded: any = jwt_decode(token);
-      const url = "http://localhost:5000/api/user/" + decoded.nameid;
+      const url = "http://"+ CONNECTION_STRING.string +"/api/user/" + decoded.nameid;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -55,7 +56,7 @@ function AllPhotos() {
         // console.log(err);
       }
     } else {
-      const url = "http://localhost:5000/api/user/" + user.id;
+      const url = "http://"+ CONNECTION_STRING.string +":5000/api/user/" + user.id;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -80,7 +81,7 @@ function AllPhotos() {
         },
       };
       const url =
-        "http://localhost:5000/api/user/" + decoded.nameid + "/albums/all";
+        "http://"+ CONNECTION_STRING.string +":5000/api/user/" + decoded.nameid + "/albums/all";
       const response = await Axios.get(url, config);
       const album = response.data;
       setState({
