@@ -1,12 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { Component } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
+  FlatList,
   RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   View,
+  Text,
 } from "react-native";
 import CardItem from "../../../components/Card";
 import { useSelector, dispatch } from "react-redux";
@@ -21,52 +24,65 @@ import { useScrollToTop } from "@react-navigation/native";
 
 type AlbumState = {
   albums: AlbumModel[];
-  loading: boolean;
 };
 
-const wait = (timeout) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, timeout);
-  });
-};
-
-function HomeScreen({ navigation }: any) {
+function HomeScreen({ navigation, route }) {
   const user = useSelector((state: RootState) => state.user);
   const INITIAL_STATE = {
     albums: [],
-    loading: true,
   };
 
   const [state, setState] = React.useState<AlbumState>(INITIAL_STATE);
-  const { albums, loading } = state;
+  const { albums } = state;
+  const [isDone, setDone] = React.useState(true);
+  const [loading, setLoading] = React.useState(true);
+  const [isCmt, setIsCmt] = React.useState(false);
+  const [page, setPage] = React.useState(1);
   const ref = React.useRef(null);
   useScrollToTop(ref);
 
+  const checkIsCmt = (isCmt) => {
+    setIsCmt(isCmt);
+  }
+
   const [refreshing, setRefreshing] = React.useState(false);
+  const wait = (timeout) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, timeout);
+    });
+  };
+
+  React.useEffect(()=>{
+    console.log(isCmt);
+    
+    if(route.params?.param){
+      setIsCmt(route.params.param)
+    }
+  },[route.params?.isCmt])
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-
-    wait(2000).then(() => setRefreshing(false));
+    setPage(1);
+    setLoading(true);
+    initNewfeed();
+    console.log("reload");
+    wait(2000).then(() => {
+      console.log("reload done");
+      setRefreshing(false)
+    });
   }, []);
 
+  //InitNewfeed
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("HomePage");
-      getUser();
-      initNewfeed();
     });
-    if (loading === true) {
-      getUser();
-      initNewfeed();
-    }
-    console.log(user);
+    console.log(user.id);
+    getUser();
+    initNewfeed();
+    console.log(page);
     return unsubscribe;
-  }, [loading]);
-
-  React.useEffect(() => {
-    console.log("Test");
-  }, [albums, loading]);
+  }, []);
 
   async function getUser() {
     const token = await AsyncStorage.getItem("userToken");
@@ -75,10 +91,7 @@ function HomeScreen({ navigation }: any) {
     if (token != null) {
       var decoded: any = jwt_decode(token);
       const url =
-        "http://" +
-        CONNECTION_STRING.string +
-        ":5000/api/user/" +
-        decoded.nameid;
+        "http://" + CONNECTION_STRING.string + "/api/user/" + decoded.nameid;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -94,8 +107,7 @@ function HomeScreen({ navigation }: any) {
         console.log(err);
       }
     } else {
-      const url =
-        "http://" + CONNECTION_STRING.string + ":5000/api/user/" + user.id;
+      const url = "http://" + CONNECTION_STRING.string + "/api/user/" + user.id;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -111,6 +123,32 @@ function HomeScreen({ navigation }: any) {
   }
 
   async function initNewfeed() {
+      const token = await AsyncStorage.getItem("userToken");
+      if (token != null) {
+        var decoded: any = jwt_decode(token);
+        const config = {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        };
+        const url =
+          "http://" +
+          CONNECTION_STRING.string +
+          "/api/user/" +
+          decoded.nameid +
+          "/albums/paged?page=" +
+          page +
+          "&pageSize=2";
+        const response = await Axios.get(url, config);
+        const album = response.data;
+        setState({
+          albums: album,
+        });
+      }
+    setLoading(false);
+  }
+
+  async function loadMoreAlbum() {
     const token = await AsyncStorage.getItem("userToken");
     if (token != null) {
       var decoded: any = jwt_decode(token);
@@ -124,35 +162,66 @@ function HomeScreen({ navigation }: any) {
         CONNECTION_STRING.string +
         "/api/user/" +
         decoded.nameid +
-        "/albums/all";
+        "/albums/paged?page=" +
+        page +
+        "&pageSize=4";
       const response = await Axios.get(url, config);
       const album = response.data;
       setState({
-        albums: album,
-        loading: false,
+        albums: albums.concat(album),
       });
+      setLoading(false);
     }
   }
+
+  const renderCardAlbum = (album) => (
+    <CardItem key={album["item"]["id"]} album={album["item"]} HomeScreenCallBack={checkIsCmt} />
+  );
+ 
+  const loadMore = () => {
+    console.log("ReachEnd");
+    console.log(isCmt);
+
+    if (loading == false ) {
+      setLoading(true);
+      setPage(page + 1);
+      loadMoreAlbum();
+    }
+  };
+
+  const renderLoading = () => {
+    return loading ? (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large"></ActivityIndicator>
+      </View>
+    ) : null;
+  };
+
+  const renderEmpty = () => {
+    return (
+      <View>
+        <Text>Đã hết album rồi !!!</Text>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        <ScrollView
-          ref={ref}
+        <FlatList
+        ref={ref}
           style={{ flex: 1 }}
           refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-        >
-          <View style={styles.group}>
-            {albums.map((album) => (
-              <CardItem key={album["id"]} album={album} />
-            ))}
-          </View>
-        </ScrollView>
+          data={albums}
+          renderItem={renderCardAlbum}
+          keyExtractor={(item, index) => index.toString()}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderLoading}
+          ListEmptyComponent={renderEmpty}
+        ></FlatList>
       </View>
     </SafeAreaView>
   );
@@ -169,6 +238,10 @@ const styles = StyleSheet.create({
     bottom: 64,
     marginTop: 15,
     marginBottom: 15,
+  },
+  loading: {
+    alignItems: "center",
+    marginTop: 10,
   },
 });
 

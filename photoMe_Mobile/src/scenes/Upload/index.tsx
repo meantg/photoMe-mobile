@@ -17,19 +17,25 @@ import AlbumModel from "../../values/models/AlbumModel";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Axios from "axios";
 import CONNECTION_STRING from "../../values/ConnectionString";
-import { useScrollToTop } from "@react-navigation/native";
+import { ImageBrowser } from "expo-image-picker-multiple";
 import * as Permissions from "expo-permissions";
-import RNFetchBlob from 'rn-fetch-blob';
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+
+const Upload = createStackNavigator();
 
 type _Image = {
-  localUri: string | undefined;
+  localUri: string;
 };
+
+const Stack = createStackNavigator();
 
 function UploadPage({ navigation }) {
   const [album, setAlbum] = React.useState<AlbumModel | null>(null);
   const user = useSelector((state: RootState) => state.user);
   const [selectedImage, setSelectedImage] = React.useState<_Image | null>(null);
   const [isUpload, setUpload] = React.useState(false);
+  const [showImagePicker, setShowImagePicker] = React.useState(false);
 
   const [title, onChangeTitle] = React.useState(
     "What do you think about your picture ?"
@@ -68,17 +74,15 @@ function UploadPage({ navigation }) {
       base64: true,
     });
 
-    if (pickerResult.cancelled === true) {
+    if (pickerResult.cancelled == true) {
       return;
     } else if (!pickerResult.cancelled) {
-      console.log(pickerResult.uri)
+      console.log(pickerResult.uri);
       if (Platform.OS == "web") {
         setSelectedImage({ localUri: pickerResult.uri });
         console.log(pickerResult.uri);
-        
       } else {
         setSelectedImage({ localUri: pickerResult.uri });
-        
       }
     }
   };
@@ -98,25 +102,71 @@ function UploadPage({ navigation }) {
     return new Blob([ia], { type: mimeString });
   }
 
-  const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+  const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
     const byteCharacters = atob(b64Data);
-    const byteArrays : Uint8Array[] = [];
-  
+    const byteArrays: Uint8Array[] = [];
+
     for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
       const slice = byteCharacters.slice(offset, offset + sliceSize);
-  
+
       const byteNumbers = new Array(slice.length);
       for (let i = 0; i < slice.length; i++) {
         byteNumbers[i] = slice.charCodeAt(i);
       }
-  
+
       const byteArray = new Uint8Array(byteNumbers);
       byteArrays.push(byteArray);
     }
-  
-    const blob = new Blob(byteArrays, {type: contentType});
+
+    const blob = new Blob(byteArrays, { type: contentType });
     return blob;
-  }
+  };
+
+  const takeImage = async () => {
+    if (Platform.OS == "ios") {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA);
+      if (status !== "granted") {
+        alert("Sorry, we need camera permissions to make this work!");
+      }
+    }
+
+    let permissionResult = await ImagePicker.getCameraPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera is required!");
+      return;
+    }
+
+    let pickerResult = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      base64: true,
+    });
+
+    if (pickerResult.cancelled == true) {
+      return;
+    } else if (!pickerResult.cancelled) {
+      console.log(pickerResult.uri);
+      if (Platform.OS == "web") {
+        setSelectedImage({ localUri: pickerResult.uri });
+        console.log(pickerResult.uri);
+      } else {
+        setSelectedImage({ localUri: pickerResult.uri });
+      }
+    }
+  };
+
+  const multipleImgPicker = () => {
+    return (
+      <View>
+        <ImageBrowser
+          max={4}
+          onChange={(callback) => {}}
+          callback={(num, onSubmit) => {}}
+        />
+      </View>
+    );
+  };
 
   const uploadImage = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -127,22 +177,19 @@ function UploadPage({ navigation }) {
       if (Platform.OS == "web") {
         const image = DataURIToBlob(selectedImage.localUri);
         data.append("Files", image);
-      }
-      else {
-        
-        
-        // console.log(fileURL);
-        const path = selectedImage.localUri.replace("file:///", "");
-        const blob =  RNFetchBlob.wrap(path);
-        console.log('blog');
-        
-        console.log(blob);
-        
-        data.append("Files",  blob );
+      } else {
+        let localUri = selectedImage.localUri;
+        let filename = localUri.split("/").pop();
+        if (filename != null) {
+          let match = /\.(\w+)$/.exec(filename);
+          let type = match ? `image/${match[1]}` : `image`;
+          const source: any = { uri: localUri, type: type, name: filename };
+          data.append("Files", source);
+        }
+        console.log("blog");
       }
       data.append("Title", title);
       data.append("AlbumType", albumType);
-
     }
 
     const url =
@@ -154,7 +201,7 @@ function UploadPage({ navigation }) {
     const config = {
       headers: {
         Authorization: "Bearer " + token,
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     };
 
@@ -204,10 +251,7 @@ function UploadPage({ navigation }) {
         />
         <Image
           source={{
-            uri:
-              Platform.OS == "web"
-                ? selectedImage.localUri
-                : 'data:image/jpeg;base64,'+ selectedImage.localUri,
+            uri: selectedImage.localUri,
           }}
           style={styles.thumbnail}
         />
@@ -241,13 +285,16 @@ function UploadPage({ navigation }) {
       <TouchableOpacity onPress={openImage}>
         <Text>Hello</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={takeImage}>
+        <Text>Open camera</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={multipleImgPicker}>
+        <Text>Multiple</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
-function CustomNoAssetsComponent() {
-  return <View>CustomNoAssetsComponent</View>;
-}
 
 const styles = StyleSheet.create({
   leftImage: {

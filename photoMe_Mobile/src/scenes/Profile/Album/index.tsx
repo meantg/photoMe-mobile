@@ -51,12 +51,11 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   image: {
-    width: "31vw",
+    width: "100%",
     maxWidth: 140,
     height: 110,
     borderWidth: 1,
     borderColor: "rgba(236,231,231,1)",
-    borderStyle: "solid",
   },
   group2Column: {},
 

@@ -36,7 +36,7 @@ export default function RegisterPage({ navigation }: any) {
         { cancelable: false }
       );
     } else {
-      fetch("http://"+ CONNECTION_STRING.string +":5000/api/auth/Register", {
+      fetch("http://"+ CONNECTION_STRING.string +"/api/auth/Register", {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -60,7 +60,7 @@ export default function RegisterPage({ navigation }: any) {
                   text: "OK",
                   onPress: () => {
                     console.log("OK Pressed");
-                    navigation.navigate("LoginPage");
+                    navigation.navigate("Login");
                   },
                 },
               ],

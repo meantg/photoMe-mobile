@@ -23,43 +23,6 @@ function ProfilePage({ navigation }: any) {
     return unsubscribe;
   }, [navigation]);
 
-  async function getUser() {
-    const token = await AsyncStorage.getItem("userToken");
-    console.log(token);
-
-    if (token != null) {
-      var decoded: any = jwt_decode(token);
-      const url = "http://"+ CONNECTION_STRING.string +":5000/api/user/" + decoded.nameid;
-      const config = {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      };
-      try {
-        const response = Axios.get(url, config);
-        if ((await response).status == 200) {
-          const userModel: UserModel = (await response).data.user;
-          dispatch(setUser(userModel));
-        }
-      } catch (err) {
-        // console.log(err);
-      }
-    } else {
-      const url = "http://"+ CONNECTION_STRING.string +":5000/api/user/" + user.id;
-      const config = {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      };
-      try {
-        const response = Axios.get(url, config);
-        console.log((await response).data);
-      } catch (err) {
-        //   console.log(err);
-      }
-    }
-  }
-
   const getToken = async () => {
     const token = await AsyncStorage.getItem("userToken");
     console.log(token);
@@ -123,16 +86,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   meantg1: {
-    fontFamily: "roboto-700",
     color: "#121212",
     fontSize: 31,
   },
   photographer: {
-    fontFamily: "roboto-italic",
     color: "#121212",
   },
   loremIpsum: {
-    fontFamily: "roboto-regular",
     color: "rgba(103,96,255,1)",
     marginTop: 2,
   },
@@ -185,7 +145,6 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   thongTinCaNhan: {
-    fontFamily: "roboto-700",
     color: "#121212",
     letterSpacing: 2,
     fontSize: 17,
@@ -194,28 +153,24 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   vịTri: {
-    fontFamily: "roboto-regular",
     color: "#121212",
     marginRight: 0,
     marginLeft: 0,
     marginTop: 0,
   },
   tuổi: {
-    fontFamily: "roboto-regular",
     color: "#121212",
     marginRight: 0,
     marginLeft: 0,
     marginTop: 0,
   },
   sdt: {
-    fontFamily: "roboto-regular",
     color: "#121212",
     marginRight: 0,
     marginLeft: 0,
     marginTop: 0,
   },
   email: {
-    fontFamily: "roboto-regular",
     color: "#121212",
     marginRight: 0,
     marginLeft: 0,

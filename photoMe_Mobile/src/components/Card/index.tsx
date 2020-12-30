@@ -4,25 +4,63 @@ import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Dimensions } from "react-native";
 import Slider from "../Slider/Slider";
+import Comment from "./Comment";
 import jwt_decode from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CONNECTION_STRING from "../../values/ConnectionString";
+import { useNavigation } from "@react-navigation/native";
 import Axios from "axios";
 import { useSelector, dispatch } from "react-redux";
 import { RootState } from "../../services/redux/reducer";
 
 let deviceWidth = Dimensions.get("window").width;
 
-function CardItem({ album }) {
+function CardItem({ album, HomeScreenCallBack }) {
+  const navigation = useNavigation();
   const photos = album["photos"];
   const photographer = album["photographer"];
   const [likeColor, setLikeColor] = React.useState("grey");
   const [likeNumber, setLike] = React.useState(album.likesNumber);
+  const [listCmt, setCmt] = React.useState([]);
+  const [isCmt, setIsCmt] = React.useState(false);
   const user = useSelector((state: RootState) => state.user);
 
   React.useEffect(() => {
+    getReviews();
     getLikes();
+    console.log(album);
   }, []);
+
+  const getReviews = async () => {
+    const token = await AsyncStorage.getItem("userToken");
+    if (token != null) {
+      var decode: any = jwt_decode(token);
+      const url =
+        "http://" +
+        CONNECTION_STRING.string +
+        "/api/review/" +
+        album.id +
+        "/paged?page=" +
+        1 +
+        "&size=" +
+        2;
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      };
+      try {
+        const res = Axios.get(url, config);
+        if ((await res).status == 200) {
+          const data = (await res).data;
+          console.log(data);
+          setCmt(data);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
 
   const getLikes = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -44,8 +82,6 @@ function CardItem({ album }) {
         const response = Axios.get(url, config);
         if ((await response).status == 200) {
           const data = (await response).data;
-          console.log(data);
-
           if (data.makerId != null) {
             user.id === data.makerId
               ? setLikeColor("blue")
@@ -74,7 +110,7 @@ function CardItem({ album }) {
       const url =
         "http://" +
         CONNECTION_STRING.string +
-        ":5000/api/user/" +
+        "/api/user/" +
         user.id +
         "/likes/like-album";
       const config = {
@@ -90,10 +126,9 @@ function CardItem({ album }) {
         const response = Axios.post(url, body, config);
         if ((await response).status == 200) {
           console.log("da like album" + album.title);
-          console.log(album);
         }
       } catch (err) {
-        // console.log(err);
+        console.log(err);
       }
     }
   };
@@ -121,15 +156,28 @@ function CardItem({ album }) {
         <Text style={styles.like}>
           {likeNumber == 0
             ? "Chưa có ai thích album này "
-            : likeNumber + "người đã thích"}
+            : likeNumber + " người đã thích"}
         </Text>
       </View>
       <View style={styles.actionBody}>
         <TouchableOpacity onPress={onPressLike} style={styles.actionButton1}>
-          <AntDesign name="like1" size={24} color={likeColor} />
+          <AntDesign name="like1" size={20} color={likeColor} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton2}>
-          <FontAwesome name="comments-o" size={24} color="black" />
+          <FontAwesome
+            name="comments-o"
+            size={20}
+            color="black"
+            onPress={() => {
+              console.log("Comment Press");
+              setIsCmt(true);
+              HomeScreenCallBack(true);
+              navigation.navigate("Comment", {
+                listCmt: listCmt,
+                album: album,
+              });
+            }}
+          />
         </TouchableOpacity>
       </View>
       <View style={styles.body}>
@@ -139,16 +187,19 @@ function CardItem({ album }) {
         </Text>
       </View>
       <View style={styles.body}>
-        <Text style={styles.bodyText}>
+        <Text style={styles.albumTypeText}>
           <Text>{album.albumType} </Text>
         </Text>
       </View>
-      <View style={styles.body}>
-        <Text style={styles.bodyText}>
-          <Text style={styles.like}>datvt99 </Text>
-          Very noice
-        </Text>
-      </View>
+      <Comment listCmt={listCmt}></Comment>
+      <TouchableOpacity
+        style={styles.loadMoreCmt}
+        onPress={() => {
+          navigation.navigate("Comment", { listCmt: listCmt, album: album });
+        }}
+      >
+        <Text style={{ color: "grey" }}>Xem tat ca binh luan </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -218,11 +269,13 @@ const styles = StyleSheet.create({
     paddingLeft: 14,
     paddingTop: 8,
   },
+
   like: {
     fontWeight: "bold",
     fontSize: 17,
   },
   actionBody: {
+    marginBottom: -10,
     padding: 8,
     flexDirection: "row",
   },
@@ -240,6 +293,12 @@ const styles = StyleSheet.create({
     height: 36,
     marginLeft: 8,
   },
+  loadMoreCmt: {
+    padding: 8,
+    height: 36,
+    marginLeft: 8,
+    marginTop: -20,
+  },
   actionText2: {
     fontSize: 14,
     color: "#000",
@@ -251,6 +310,12 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   bodyText: {
+    lineHeight: 20,
+    fontSize: 16,
+    color: "#424242",
+  },
+  albumTypeText: {
+    marginTop: -10,
     lineHeight: 20,
     fontSize: 16,
     color: "#424242",

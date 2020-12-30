@@ -27,49 +27,9 @@ function AllPhotos() {
   const { albums, loading } = state;
 
   React.useEffect(() => {
-    if (loading === true) {
-      getUser();
       initNewfeed();
-    }
     console.log(user);
-  }, [loading]);
-
-  async function getUser() {
-    const token = await AsyncStorage.getItem("userToken");
-    console.log(token);
-
-    if (token != null) {
-      var decoded: any = jwt_decode(token);
-      const url = "http://"+ CONNECTION_STRING.string +"/api/user/" + decoded.nameid;
-      const config = {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      };
-      try {
-        const response = Axios.get(url, config);
-        if ((await response).status == 200) {
-          const userModel: UserModel = (await response).data.user;
-          dispatch(setUser(userModel));
-        }
-      } catch (err) {
-        // console.log(err);
-      }
-    } else {
-      const url = "http://"+ CONNECTION_STRING.string +":5000/api/user/" + user.id;
-      const config = {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      };
-      try {
-        const response = Axios.get(url, config);
-        console.log((await response).data);
-      } catch (err) {
-        //   console.log(err);
-      }
-    }
-  }
+  }, []);
 
   async function initNewfeed() {
     const token = await AsyncStorage.getItem("userToken");
@@ -81,7 +41,7 @@ function AllPhotos() {
         },
       };
       const url =
-        "http://"+ CONNECTION_STRING.string +":5000/api/user/" + decoded.nameid + "/albums/all";
+        "http://"+ CONNECTION_STRING.string +"/api/user/" + decoded.nameid + "/albums/all";
       const response = await Axios.get(url, config);
       const album = response.data;
       setState({

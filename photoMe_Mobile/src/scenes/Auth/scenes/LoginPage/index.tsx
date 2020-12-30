@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 40,
     marginBottom: 10,
-    padding: 20,
+    padding: 15,
   },
 
   loginText: {
