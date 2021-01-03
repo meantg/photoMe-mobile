@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  AsyncStorage,
+  ActionSheetIOS,
   Button,
   Dimensions,
   StyleSheet,
@@ -9,7 +9,10 @@ import {
 } from "react-native";
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator, HeaderBackButton } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  HeaderBackButton,
+} from "@react-navigation/stack";
 import LoginPage from "./src/scenes/Auth/scenes/LoginPage";
 import RegisterPage from "./src/scenes/Auth/scenes/RegisterPage";
 import LoggingInPage from "./src/scenes/Home/HomePage/Loading";
@@ -17,9 +20,11 @@ import HomePage from "./src/scenes/Home/index";
 import { Entypo, Foundation } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import store from "./src/services/redux/store";
-import { Provider } from "react-redux";
+import { Provider } from "./node_modules/react-redux";
 import { decode, encode } from "base-64";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from '@react-navigation/native';
 
 const globalAny: any = global;
 if (!global.btoa) {
@@ -75,8 +80,8 @@ export default function App() {
                 },
                 headerShown: true,
                 headerBackTitleVisible: true,
-                headerLeft: () => <ToHome  />,
-                headerRight: () => <HeaderBackButton label="Logout"  />
+                headerLeft: () => <ToHome />,
+                headerRight: () => <ToSettings />,
               }}
             />
           </Stack.Navigator>
@@ -99,7 +104,7 @@ export default function App() {
                 headerBackTitleVisible: true,
                 // headerLeft: () => <ToHome />,
                 // headerRight: () => <ToSettings />,
-                headerBackTitle: "Back"
+                headerBackTitle: "Back",
               }}
             />
             <Stack.Screen name="ImgPicker" component={ImgPicker} />
@@ -113,14 +118,12 @@ export default function App() {
 function ToHome() {
   return (
     <View style={styles.header}>
-      <TouchableOpacity onPress={() => {
-            console.log("Logout");
-          }}>
-        <Entypo
-          name="home"
-          size={26}
-          color="black"
-        />
+      <TouchableOpacity
+        onPress={() => {
+          console.log("Logout");
+        }}
+      >
+        <Entypo name="home" size={26} color="black" />
       </TouchableOpacity>
     </View>
   );
@@ -131,9 +134,31 @@ function ImgPicker() {
 }
 
 function ToSettings() {
+  const navigation = useNavigation();
   return (
     <View style={styles.header}>
-      <Foundation name="list" size={26} color="black" />
+      <TouchableOpacity
+        onPress={() => {
+          ActionSheetIOS.showActionSheetWithOptions(
+            {
+              options: ["Cancel", "LogOut"],
+              cancelButtonIndex: 0,
+            },
+            (buttonIndex) => {
+              if (buttonIndex === 0) {
+                // cancel action
+              } else if (buttonIndex === 1) {
+                console.log("LogOut");
+                AsyncStorage.clear();
+                
+                navigation.navigate("Login")
+              }
+            }
+          );
+        }}
+      >
+        <Foundation name="list" size={26} color="black" />
+      </TouchableOpacity>
     </View>
   );
 }

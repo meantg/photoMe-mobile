@@ -6,7 +6,7 @@ import TabAlbum from "../../components/TabAlbum";
 import jwt_decode from "jwt-decode";
 import Axios from "axios";
 import UserModel from "../../values/models/UserModel";
-import { useSelector, dispatch } from "react-redux";
+import { useSelector, dispatch } from "../../../node_modules/react-redux";
 import { setUser } from "../../services/redux/slices/userSlices";
 import { RootState } from "../../services/redux/reducer";
 import CONNECTION_STRING from "../../values/ConnectionString";

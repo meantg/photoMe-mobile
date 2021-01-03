@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
+  MaskedViewIOS,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -20,6 +21,10 @@ import { RootState } from "../../services/redux/reducer";
 import CONNECTION_STRING from "../../values/ConnectionString";
 import { MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
+import AlbumCard from "../../components/AlbumCard";
+
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
 function NewProfile({ navigation }: any) {
   const user = useSelector((state: RootState) => state.user);
@@ -69,24 +74,7 @@ function NewProfile({ navigation }: any) {
             </View>
           </View>
         </BlurView>
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: "rgba(0,0,0,0.2)",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 70,
-            position: "absolute",
-            bottom: -30,
-            right: 10,
-            height: 70,
-            backgroundColor: "#fff",
-            borderRadius: 15,
-            zIndex: 6
-          }}
-        >
-          <Icon name="plus" size={30} color="#01a699" />
-        </TouchableOpacity>
+
         <TouchableOpacity
           style={{
             borderWidth: 1,
@@ -105,23 +93,110 @@ function NewProfile({ navigation }: any) {
           <Icon name="plus" size={30} color="#01a699" />
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.botProfile}>
-        <View style={{display: "flex", flexDirection: "row"}}>
-        <View style={styles.leftBotProfile}>
-          <Text style={{marginTop: 40, marginBottom: 100 ,transform: [{rotate: '90deg'}]}}>Albums</Text>
-          <Text style={{marginBottom: 50 ,transform: [{rotate: '90deg'}]}}>Photos</Text>
-        </View>
-        <View style={styles.rightBotProfile}>
-          <View style={styles.albums}>
-            <Text>Albums</Text>
+      <View style={styles.botProfile}>
+        <TouchableOpacity
+          style={{
+            borderWidth: 1,
+            borderColor: "rgba(0,0,0,0.2)",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 70,
+            position: "absolute",
+            top: -45,
+            right: 10,
+            height: 70,
+            backgroundColor: "#fff",
+            borderRadius: 15,
+            zIndex: 6,
+          }}
+        >
+          <Icon name="plus" size={30} color="#01a699" />
+        </TouchableOpacity>
+        <View style={{}}>
+          <View style={styles.listAlbums}>
+            <Text
+              style={{
+                position: "absolute",
+                marginTop: 40,
+                transform: [{ rotate: "90deg" }],
+              }}
+            >
+              Albums
+            </Text>
+            <ScrollView
+              style={{ marginLeft: 50 }}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+            >
+              <AlbumCard></AlbumCard>
+              <AlbumCard></AlbumCard>
+              <AlbumCard></AlbumCard>
+              <AlbumCard></AlbumCard>
+              <AlbumCard></AlbumCard>
+              <AlbumCard></AlbumCard>
+              <AlbumCard></AlbumCard>
+            </ScrollView>
           </View>
-          <View style={styles.photos}>
-            <Text>Photos</Text>
+          <View style={styles.listPhotos}>
+            <Text
+              style={{
+                position: "absolute",
+                marginTop: 40,
+                transform: [{ rotate: "90deg" }],
+              }}
+            >
+              Photos
+            </Text>
+            <MaskedViewIOS
+              style={{ flex: 1, flexDirection: "row", height: "100%" }}
+              maskElement={
+                <View
+                  style={{
+                    // Transparent background because mask is based off alpha channel.
+                    backgroundColor: "transparent",
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 60,
+                      color: "black",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Basic Mask
+                  </Text>
+                </View>
+              }
+            >
+              {/* Shows behind the mask, you can put anything here, such as an image */}
+              <View
+                style={{
+                  flex: 1,
+                  height: "100%",
+                  backgroundColor: "#324376",
+                }}
+              />
+              <View
+                style={{
+                  flex: 1,
+                  height: "100%",
+                  backgroundColor: "#F5DD90",
+                }}
+              />
+              <View
+                style={{
+                  flex: 1,
+                  height: "100%",
+                  backgroundColor: "#F76C5E",
+                }}
+              />
+            </MaskedViewIOS>
           </View>
         </View>
-        </View>
-       
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -131,14 +206,14 @@ const styles = StyleSheet.create({
 
   albums: {},
 
-  rightBotProfile: {
-    width: "80%",
+  listAlbums: {
+    height: windowHeight / 6,
+    backgroundColor: "grey",
   },
 
-  leftBotProfile: {
-    width: "15%",
-    height: "100%",
-    backgroundColor: "grey",
+  listPhotos: {
+    height: "55%",
+    backgroundColor: "white",
   },
 
   nonBlurredContent: {
@@ -160,8 +235,7 @@ const styles = StyleSheet.create({
     maxHeight: 400,
   },
 
-  container: {
-  },
+  container: {},
 });
 
 export default NewProfile;

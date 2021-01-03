@@ -21,7 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
 import CONNECTION_STRING from "../../../../values/ConnectionString";
 import Axios from "axios";
-import { useSelector, dispatch } from "react-redux";
+import { useSelector, dispatch } from "../../../../../node_modules/react-redux";
 import { RootState } from "../../../../services/redux/reducer";
 
 const windowWidth = Dimensions.get("window").width;

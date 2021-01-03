@@ -28,7 +28,6 @@ function CardItem({ album, HomeScreenCallBack }) {
   React.useEffect(() => {
     getReviews();
     getLikes();
-    console.log(album);
   }, []);
 
   const getReviews = async () => {
@@ -53,7 +52,6 @@ function CardItem({ album, HomeScreenCallBack }) {
         const res = Axios.get(url, config);
         if ((await res).status == 200) {
           const data = (await res).data;
-          console.log(data);
           setCmt(data);
         }
       } catch (err) {
@@ -125,7 +123,7 @@ function CardItem({ album, HomeScreenCallBack }) {
       try {
         const response = Axios.post(url, body, config);
         if ((await response).status == 200) {
-          console.log("da like album" + album.title);
+          console.log("da like album" + album.title + " " +  album.id);
         }
       } catch (err) {
         console.log(err);
@@ -169,7 +167,6 @@ function CardItem({ album, HomeScreenCallBack }) {
             size={20}
             color="black"
             onPress={() => {
-              console.log("Comment Press");
               setIsCmt(true);
               HomeScreenCallBack(true);
               navigation.navigate("Comment", {
@@ -224,6 +221,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     overflow: "hidden",
     marginBottom: 15,
+    padding : 5
   },
   cardItem1Style: {
     flexDirection: "row",

@@ -12,6 +12,8 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import UserModel from "../../../../values/models/UserModel";
@@ -32,7 +34,7 @@ export default function LoginPage({ navigation }: any) {
     });
 
     return unsubscribe;
-  }, [navigation]);
+  }, []);
 
   const login = async () => {
     console.log("log in");
@@ -77,35 +79,44 @@ export default function LoginPage({ navigation }: any) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.appName}>𝓹𝓱𝓸𝓽𝓸𝓜𝓮</Text>
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Email..."
-          placeholderTextColor="#003f5c"
-          onChangeText={(text: any) => setEmail(text)}
-        />
+    <KeyboardAvoidingView
+      keyboardVerticalOffset={0}
+      style={{ flex: 1,  
+        backgroundColor: "#f5ebbf",
+        alignItems: "center",
+        justifyContent: "center", }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <View style={styles.container}>
+        <Text style={styles.appName}>𝓹𝓱𝓸𝓽𝓸𝓜𝓮</Text>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Email..."
+            placeholderTextColor="#003f5c"
+            onChangeText={(text: any) => setEmail(text)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            secureTextEntry={true}
+            style={styles.inputText}
+            placeholder="Password..."
+            placeholderTextColor="#003f5c"
+            onChangeText={(text: any) => setPassword(text)}
+          />
+        </View>
+        <TouchableOpacity style={styles.loginBtn} onPress={login}>
+          <Text style={styles.loginText}>LOGIN</Text>
+        </TouchableOpacity>
+        <Text
+          style={styles.signUp}
+          onPress={() => navigation.navigate("Register")}
+        >
+          Don't have account? Register now{" "}
+        </Text>
       </View>
-      <View style={styles.inputView}>
-        <TextInput
-          secureTextEntry={true}
-          style={styles.inputText}
-          placeholder="Password..."
-          placeholderTextColor="#003f5c"
-          onChangeText={(text: any) => setPassword(text)}
-        />
-      </View>
-      <TouchableOpacity style={styles.loginBtn} onPress={login}>
-        <Text style={styles.loginText}>LOGIN</Text>
-      </TouchableOpacity>
-      <Text
-        style={styles.signUp}
-        onPress={() => navigation.navigate("Register")}
-      >
-        Don't have account? Register now{" "}
-      </Text>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -160,5 +171,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5ebbf",
     alignItems: "center",
     justifyContent: "center",
+    width: "100%"
   },
 });

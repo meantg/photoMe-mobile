@@ -6,8 +6,13 @@ import {
   Button,
   Image,
   TouchableOpacity,
+  Modal,
   TextInput,
   Platform,
+  TouchableHighlight,
+  ActionSheetIOS,
+  Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { RootState } from "../../services/redux/reducer";
@@ -19,7 +24,6 @@ import Axios from "axios";
 import CONNECTION_STRING from "../../values/ConnectionString";
 import { ImageBrowser } from "expo-image-picker-multiple";
 import * as Permissions from "expo-permissions";
-import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 const Upload = createStackNavigator();
@@ -32,6 +36,7 @@ const Stack = createStackNavigator();
 
 function UploadPage({ navigation }) {
   const [album, setAlbum] = React.useState<AlbumModel | null>(null);
+  const [askModal, setModalVisible] = React.useState(false);
   const user = useSelector((state: RootState) => state.user);
   const [selectedImage, setSelectedImage] = React.useState<_Image | null>(null);
   const [isUpload, setUpload] = React.useState(false);
@@ -41,12 +46,12 @@ function UploadPage({ navigation }) {
     "What do you think about your picture ?"
   );
   const [albumType, onChangeDes] = React.useState("Describe your pic ");
-  const [desHeight, setHeight] = React.useState(40);
+  const [desHeight, setHeight] = React.useState(80);
 
   React.useEffect(() => {
-    setSelectedImage(null);
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("Upload Page");
+      setSelectedImage(null);
     });
   }, []);
 
@@ -156,18 +161,6 @@ function UploadPage({ navigation }) {
     }
   };
 
-  const multipleImgPicker = () => {
-    return (
-      <View>
-        <ImageBrowser
-          max={4}
-          onChange={(callback) => {}}
-          callback={(num, onSubmit) => {}}
-        />
-      </View>
-    );
-  };
-
   const uploadImage = async () => {
     const token = await AsyncStorage.getItem("userToken");
 
@@ -221,82 +214,178 @@ function UploadPage({ navigation }) {
 
   if (selectedImage !== null) {
     return (
-      <View style={styles.container}>
-        <View style={styles.cardItem1Style}>
-          <View style={styles.headerStyle}>
-            <Image
-              source={require("../../images/iconapp.png")}
-              style={styles.leftImage}
-            ></Image>
-            <View style={styles.headerContent}>
-              <Text style={styles.textStyle}>{user.name}</Text>
-              <Text style={styles.noteTextStyle}>
-                {user.city} {user.country}
-              </Text>
+      <KeyboardAvoidingView
+        keyboardVerticalOffset={110}
+        style={{
+          flex: 1,
+          width: "100%",
+          backgroundColor: "white",
+        }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.container}>
+          <View style={styles.cardItem1Style}>
+            <View style={styles.headerStyle}>
+              <Image
+                source={require("../../images/iconapp.png")}
+                style={styles.leftImage}
+              ></Image>
+              <View style={styles.headerContent}>
+                <Text style={styles.textStyle}>{user.name}</Text>
+                <Text style={styles.noteTextStyle}>
+                  {user.city} {user.country}
+                </Text>
+              </View>
             </View>
           </View>
+          <TextInput
+            style={{
+              width: "100%",
+              height: 40,
+              padding: 10,
+              borderBottomWidth: 1,
+              borderBottomColor: "black",
+              marginLeft: 2,
+            }}
+            onChangeText={(text) => onChangeTitle(text)}
+            maxLength={80}
+            value={title}
+          />
+          <Image
+            source={{
+              uri: selectedImage.localUri,
+            }}
+            style={styles.thumbnail}
+          />
+          <TextInput
+            style={{
+              width: "100%",
+              height: 100,
+              padding: 10,
+              borderBottomWidth: 1,
+              borderBottomColor: "black",
+              marginLeft: 2,
+            }}
+            onContentSizeChange={(event) => {
+              setHeight(event.nativeEvent.contentSize.height);
+            }}
+            maxLength={120}
+            onChangeText={(text) => onChangeDes(text)}
+            multiline={true}
+            value={albumType}
+          />
         </View>
-        <TextInput
-          style={{
-            width: "100%",
-            height: 40,
-            padding: 10,
-            borderBottomWidth: 1,
-            borderBottomColor: "black",
-            marginLeft: 2,
-          }}
-          onChangeText={(text) => onChangeTitle(text)}
-          maxLength={80}
-          value={title}
-        />
-        <Image
-          source={{
-            uri: selectedImage.localUri,
-          }}
-          style={styles.thumbnail}
-        />
-        <TextInput
-          style={{
-            width: "100%",
-            height: desHeight,
-            padding: 10,
-            borderBottomWidth: 1,
-            borderBottomColor: "black",
-            marginLeft: 2,
-          }}
-          onContentSizeChange={(event) => {
-            setHeight(event.nativeEvent.contentSize.height);
-          }}
-          maxLength={120}
-          onChangeText={(text) => onChangeDes(text)}
-          multiline={true}
-          value={albumType}
-        />
         <TouchableOpacity style={styles.uploadBtn} onPress={uploadImage}>
           <Text style={styles.uploadText}>UPLOAD</Text>
           <AntDesign name="upload" size={24} color="white" />
         </TouchableOpacity>
+      </KeyboardAvoidingView>
+    );
+  } else {
+    const onPress = () =>
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ["Cancel", "Single Image", "Multiple Image"],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 0) {
+            // cancel action
+          } else if (buttonIndex === 1) {
+            openImage();
+          } else if (buttonIndex === 2) {
+            navigation.navigate("MultipleImage");
+          }
+        }
+      );
+
+    return (
+      <View style={styles.container1}>
+        <TouchableOpacity onPress={onPress}>
+          <Image
+            source={require("../../images/gallery.png")}
+            style={{ width: 150, height: 150, alignSelf: "center" }}
+          ></Image>
+          <Text
+            style={{
+              fontSize: 30,
+              color: "black",
+              letterSpacing: 2,
+              fontWeight: "600",
+            }}
+          >
+            From Gallery
+          </Text>
+          <Text style={{ alignSelf: "center", letterSpacing: 1 }}>
+            Upload from your mobile
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={takeImage}>
+          <Image
+            source={require("../../images/opencamera.png")}
+            style={{
+              width: 150,
+              height: 150,
+              marginTop: 35,
+              alignSelf: "center",
+            }}
+          ></Image>
+          <Text
+            style={{
+              fontSize: 30,
+              color: "black",
+              letterSpacing: 2,
+              fontWeight: "600",
+            }}
+          >
+            From Camera
+          </Text>
+          <Text style={{ alignSelf: "center", letterSpacing: 1 }}>
+            Upload your shoots
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
-
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={openImage}>
-        <Text>Hello</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={takeImage}>
-        <Text>Open camera</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={multipleImgPicker}>
-        <Text>Multiple</Text>
-      </TouchableOpacity>
-    </View>
-  );
 }
 
-
 const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    display: "flex",
+    flexDirection: "row",
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  openButton: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  textStyle: {
+    color: "black",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+  },
   leftImage: {
     height: 40,
     width: 40,
@@ -306,11 +395,6 @@ const styles = StyleSheet.create({
   headerContent: {
     paddingLeft: 16,
     justifyContent: "center",
-  },
-  textStyle: {
-    fontSize: 16,
-    color: "#000",
-    lineHeight: 20,
   },
   noteTextStyle: {
     fontSize: 14,
@@ -335,12 +419,13 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     borderRadius: 25,
-    height: 50,
-    alignItems: "center",
+    height: 45,
+    alignSelf: "center",
     justifyContent: "center",
     marginTop: 40,
-    marginBottom: 10,
-    padding: 20,
+    position: "absolute",
+    bottom: 5,
+    padding: 10,
   },
 
   uploadText: {
@@ -350,10 +435,15 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   container: {
-    overflow: "scroll",
-    justifyContent: "center",
     alignItems: "center",
     width: "100%",
+    height: "100%",
+  },
+  container1: {
+    justifyContent: 'center',
+    alignItems: "center",
+    width: "100%",
+    height: "100%",
   },
   thumbnail: {
     marginTop: 10,

@@ -1,8 +1,11 @@
 import React, { Component, useEffect } from "react";
 import { StyleSheet, View, Text, Animated, Easing } from "react-native";
 import { Ionicons as Icon } from "@expo/vector-icons";
-import {useSelector} from "react-redux";
+import { useSelector, dispatch } from "react-redux";
 import { RootState } from "../../../../services/redux/reducer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as signalR from "@microsoft/signalr";
+import CONNECTION_STRING from "../../../../values/ConnectionString";
 
 const AnimatedIcon = Animated.createAnimatedComponent(Icon);
 
@@ -26,7 +29,24 @@ export default function LoggingInPage({navigation} : any) {
 		})
 	}
 
+	const connectChatHub = async () => {
+		const token = await AsyncStorage.getItem("userToken");
+		if (token !== null) {
+		  const connection = new signalR.HubConnectionBuilder()
+			.withUrl("http://" + CONNECTION_STRING.string + "/chatsocket", {
+			  accessTokenFactory: () => token,
+			})
+			.configureLogging(signalR.LogLevel.Information)
+			.build();
+	
+		  connection.start().then(() => {
+			console.log("connected");
+		  });
+		}
+	  };
+
 	useEffect(() => {
+		connectChatHub();
 		const loadScreen = async () => {
 			startAnimation();
 			const loading = await awaitAnimation();

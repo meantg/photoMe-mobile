@@ -76,11 +76,10 @@ function HomeScreen({ navigation, route }) {
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("HomePage");
+      console.log(user);
     });
-    console.log(user.id);
     getUser();
     initNewfeed();
-    console.log(page);
     return unsubscribe;
   }, []);
 

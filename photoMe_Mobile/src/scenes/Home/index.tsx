@@ -2,15 +2,22 @@ import { createStackNavigator, Header } from "@react-navigation/stack";
 import React from "react";
 import { View, Text, Button } from "react-native";
 import ProfilePage from "../Profile";
-import { MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
+import {
+  MaterialCommunityIcons,
+  AntDesign,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import HomeScreen from "./HomeScreen";
 import UploadPage from "../Upload";
 import NewProfile from "../Profile/profile";
 import CommentScreen from "./HomeScreen/CommentScreen";
+import MultipleImage from "../Upload/MultipleImage";
+import Inbox from "../Message/Contact";
 
 const Tab = createMaterialBottomTabNavigator();
 const HomeStack = createStackNavigator();
+const UploadStack = createStackNavigator();
 
 export default function HomePage() {
   return (
@@ -53,12 +60,12 @@ export default function HomePage() {
       </Tab.Screen>
       <Tab.Screen
         name="Search"
-        component={SearchScreen}
+        component={Inbox}
         options={{
-          tabBarLabel: "Search",
+          tabBarLabel: "Message",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
-              name="account-search-outline"
+              name="inbox-arrow-down"
               color={color}
               size={26}
             />
@@ -67,14 +74,34 @@ export default function HomePage() {
       />
       <Tab.Screen
         name="Upload"
-        component={UploadPage}
         options={{
           tabBarLabel: "Upload",
           tabBarIcon: ({ color }) => (
             <AntDesign name="pluscircleo" size={24} color={color} />
           ),
+          
         }}
-      />
+      >
+        {() => (
+          <HomeStack.Navigator
+            mode="modal"
+            screenOptions={{
+              headerShown: true,
+            }}
+          >
+            <HomeStack.Screen
+              name="Upload"
+              component={UploadPage}
+              options={{ headerShown: false }}
+            />
+            <HomeStack.Screen
+              name="MultipleImage"
+              component={MultipleImage}
+              options={{ headerShown: true }}
+            />
+          </HomeStack.Navigator>
+        )}
+      </Tab.Screen>
       <Tab.Screen
         name="Profile"
         component={NewProfile}
@@ -86,6 +113,16 @@ export default function HomePage() {
               color={color}
               size={26}
             />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={NewProfile}
+        options={{
+          tabBarLabel: "Profile",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="settings" size={26} color={color} />
           ),
         }}
       />
