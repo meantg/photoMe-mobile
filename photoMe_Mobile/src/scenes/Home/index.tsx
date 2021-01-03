@@ -13,7 +13,7 @@ import UploadPage from "../Upload";
 import NewProfile from "../Profile/profile";
 import CommentScreen from "./HomeScreen/CommentScreen";
 import MultipleImage from "../Upload/MultipleImage";
-import Inbox from "../Message/Contact";
+import ListContact from "../Message/Contact/ListContact";
 
 const Tab = createMaterialBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -60,7 +60,7 @@ export default function HomePage() {
       </Tab.Screen>
       <Tab.Screen
         name="Search"
-        component={Inbox}
+        component={ListContact}
         options={{
           tabBarLabel: "Message",
           tabBarIcon: ({ color }) => (
