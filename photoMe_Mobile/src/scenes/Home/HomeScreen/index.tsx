@@ -80,6 +80,7 @@ function HomeScreen({ navigation, route }) {
     });
     getUser();
     initNewfeed();
+    setPage(page + 1);
     return unsubscribe;
   }, []);
 
@@ -90,7 +91,7 @@ function HomeScreen({ navigation, route }) {
     if (token != null) {
       var decoded: any = jwt_decode(token);
       const url =
-        "http://" + CONNECTION_STRING.string + "/api/user/" + decoded.nameid;
+        CONNECTION_STRING.string + "user/" + decoded.nameid;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -106,7 +107,7 @@ function HomeScreen({ navigation, route }) {
         console.log(err);
       }
     } else {
-      const url = "http://" + CONNECTION_STRING.string + "/api/user/" + user.id;
+      const url = CONNECTION_STRING.string + "/api/user/" + user.id;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -131,9 +132,8 @@ function HomeScreen({ navigation, route }) {
           },
         };
         const url =
-          "http://" +
           CONNECTION_STRING.string +
-          "/api/user/" +
+          "user/" +
           decoded.nameid +
           "/albums/paged?page=" +
           page +
@@ -157,24 +157,25 @@ function HomeScreen({ navigation, route }) {
         },
       };
       const url =
-        "http://" +
         CONNECTION_STRING.string +
-        "/api/user/" +
+        "user/" +
         decoded.nameid +
         "/albums/paged?page=" +
         page +
         "&pageSize=4";
       const response = await Axios.get(url, config);
       const album = response.data;
-      setState({
-        albums: albums.concat(album),
-      });
+      if(album){
+        setState({
+          albums: albums.concat(album),
+        });
+      }
       setLoading(false);
     }
   }
 
   const renderCardAlbum = (album) => (
-    <CardItem key={album["item"]["id"]} album={album["item"]} HomeScreenCallBack={checkIsCmt} />
+    <CardItem key={album["item"]["id"]} album={album["item"]} />
   );
  
   const loadMore = () => {

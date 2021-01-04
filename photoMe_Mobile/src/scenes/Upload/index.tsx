@@ -186,9 +186,8 @@ function UploadPage({ navigation }) {
     }
 
     const url =
-      "http://" +
       CONNECTION_STRING.string +
-      "/api/user/" +
+      "user/" +
       user.id +
       "/albums/upload-album";
     const config = {

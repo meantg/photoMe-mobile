@@ -53,7 +53,7 @@ function CommentScreen({ navigation, route }) {
     if (token != null) {
       var decode: any = jwt_decode(token);
       const url =
-        "http://" + CONNECTION_STRING.string + "/api/review/" + album.id;
+        CONNECTION_STRING.string + "review/" + album.id;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -81,7 +81,7 @@ function CommentScreen({ navigation, route }) {
       if (token != null) {
         var decoded: any = jwt_decode(token);
         const url =
-          "http://" + CONNECTION_STRING.string + "/api/review/new-review";
+          CONNECTION_STRING.string + "review/new-review";
         const config = {
           headers: {
             Authorization: "Bearer " + token,

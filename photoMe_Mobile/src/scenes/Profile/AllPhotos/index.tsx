@@ -41,7 +41,7 @@ function AllPhotos() {
         },
       };
       const url =
-        "http://"+ CONNECTION_STRING.string +"/api/user/" + decoded.nameid + "/albums/all";
+        CONNECTION_STRING.string +"user/" + decoded.nameid + "/albums/all";
       const response = await Axios.get(url, config);
       const album = response.data;
       setState({

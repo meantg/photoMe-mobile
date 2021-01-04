@@ -10,11 +10,13 @@ import {
   Modal,
   TouchableHighlight,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import CONNECTION_STRING from "../../../../values/ConnectionString";
 import ChatBox from "./ChatBox";
 import jwt_decode from "jwt-decode";
+import { SearchBar } from 'react-native-elements';
 
 type User = {
   name: string;
@@ -32,14 +34,18 @@ function ListContact({ navigation }) {
     const unsubscribe = navigation.addListener("focus", async () => {
       console.log("Inbox");
       getListContact();
-      getUserInfo();
+      // getUserInfo();
     });
     return unsubscribe;
   }, []);
 
-  React.useEffect(() => {
-    setDone(true)
-  }, [listUser]);
+  // React.useEffect(() => {
+  //     console.log("SetDone");
+  //     if(listUser === []){
+  //       getUserInfo();
+  //     }
+  //     setDone(true);
+  // }, [listUser]);
 
   const getListContact = async () => {
     console.log("getListContact");
@@ -47,8 +53,7 @@ function ListContact({ navigation }) {
     const token = await AsyncStorage.getItem("userToken");
     if (token != null) {
       var decoded: any = jwt_decode(token);
-      const url =
-        "http://" + CONNECTION_STRING.string + "/api/chat/get-list-contact";
+      const url = CONNECTION_STRING.string + "chat/get-list-contact";
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -78,8 +83,7 @@ function ListContact({ navigation }) {
         console.log(contactId);
         console.log("RunAPI");
 
-        const url =
-          "http://" + CONNECTION_STRING.string + "/api/user/" + contactId;
+        const url = +CONNECTION_STRING.string + "user/" + contactId;
         const config = {
           headers: {
             Authorization: "Bearer " + token,
@@ -104,26 +108,39 @@ function ListContact({ navigation }) {
     }
   };
 
-  if (listUser && isLoadDone) {
+  if (listContact) {
     return (
-      <ScrollView style={styles.scrollStyle}>
-        {listUser.map((user, index)=>{
-          return(
-            <ChatBox key={index} listUser={user}></ChatBox>
-          )
-        })}
-      </ScrollView>
+      <View>
+        <SearchBar></SearchBar>
+        <ScrollView style={styles.scrollStyle}>
+          {listContact.map((user, index) => {
+            return <ChatBox key={index} Contact={user}></ChatBox>;
+          })}
+        </ScrollView>
+      </View>
     );
-  } 
-    return null
+  } else {
+    return (
+      <View
+        style={{
+          width: "100%",
+          height: "100%",
+          justifyContent: "center",
+          backgroundColor: "black",
+        }}
+      >
+        <ActivityIndicator />
+      </View>
+    );
+  }
 }
 
 export default ListContact;
 
 const styles = StyleSheet.create({
-  scrollStyle:{
+  scrollStyle: {
     padding: 5,
-    marginTop: 10
+    marginTop: 10,
   },
   centeredView: {
     flex: 1,

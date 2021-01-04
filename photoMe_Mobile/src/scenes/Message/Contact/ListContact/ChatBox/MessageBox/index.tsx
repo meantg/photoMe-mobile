@@ -1,32 +1,73 @@
 import React from "react";
-import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ActivityIndicator,
+  TextInput,
+  Dimensions,
+  ScrollView,
+} from "react-native";
 import { useSelector, dispatch } from "react-redux";
 import { RootState } from "../../../../../../services/redux/reducer";
 
-function MessageBox({ listMessage }) {
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
+
+function MessageBox({ listMessage, contact }) {
   const user = useSelector((state: RootState) => state.user);
 
-  if (listMessage && listMessage.length ) {
+  const senderMsg = () =>{
+
+  }
+
+  if (listMessage && listMessage.length) {
     return (
-      <View style={styles.msgBox}>
+      <ScrollView style={styles.msgBox}>
         {listMessage.map((msg, index) => {
-          return (
-            <Text key={index} >{msg["content"]}</Text>
-          );
+          if (msg["senderId"] == user.id) {
+            return (
+              <View
+                key={index}
+                style={{
+                  display: "flex",
+                  width: windowWidth,
+                }}
+              >
+                <Text>{msg["content"]}</Text>
+                {/* <TextInput key={1} style={styles.input}></TextInput> */}
+              </View>
+            );
+          }
+          else{
+            return(
+              <View></View>
+            )
+          }
         })}
-      </View>
+      </ScrollView>
     );
   }
-  return <View>
-      <ActivityIndicator/>
-  </View>
+  return (
+    <View>
+      <ActivityIndicator />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  msgBox: {
-    width: 80,
-    height: 30,
+  input: {
+    position: "absolute",
+    width: windowWidth,
+    height: 50,
     backgroundColor: "grey",
+    borderBottomWidth: 1,
+  },
+  msgBox: {
+    width: "100%",
+    height: "auto",
+    backgroundColor: "grey",
+    padding: 15
   },
 });
 

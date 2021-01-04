@@ -15,7 +15,7 @@ import { RootState } from "../../services/redux/reducer";
 
 let deviceWidth = Dimensions.get("window").width;
 
-function CardItem({ album, HomeScreenCallBack }) {
+function CardItem({ album }) {
   const navigation = useNavigation();
   const photos = album["photos"];
   const photographer = album["photographer"];
@@ -35,9 +35,8 @@ function CardItem({ album, HomeScreenCallBack }) {
     if (token != null) {
       var decode: any = jwt_decode(token);
       const url =
-        "http://" +
         CONNECTION_STRING.string +
-        "/api/review/" +
+        "review/" +
         album.id +
         "/paged?page=" +
         1 +
@@ -65,12 +64,7 @@ function CardItem({ album, HomeScreenCallBack }) {
     if (token != null) {
       var decoded: any = jwt_decode(token);
       const url =
-        "http://" +
-        CONNECTION_STRING.string +
-        "/api/user/" +
-        user.id +
-        "/likes/" +
-        album.id;
+        CONNECTION_STRING.string + "user/" + user.id + "/likes/" + album.id;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -106,11 +100,7 @@ function CardItem({ album, HomeScreenCallBack }) {
     if (token != null) {
       var decoded: any = jwt_decode(token);
       const url =
-        "http://" +
-        CONNECTION_STRING.string +
-        "/api/user/" +
-        user.id +
-        "/likes/like-album";
+        CONNECTION_STRING.string + "user/" + user.id + "/likes/like-album";
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -123,7 +113,7 @@ function CardItem({ album, HomeScreenCallBack }) {
       try {
         const response = Axios.post(url, body, config);
         if ((await response).status == 200) {
-          console.log("da like album" + album.title + " " +  album.id);
+          console.log("da like album" + album.title + " " + album.id);
         }
       } catch (err) {
         console.log(err);
@@ -168,7 +158,6 @@ function CardItem({ album, HomeScreenCallBack }) {
             color="black"
             onPress={() => {
               setIsCmt(true);
-              HomeScreenCallBack(true);
               navigation.navigate("Comment", {
                 listCmt: listCmt,
                 album: album,
@@ -177,9 +166,9 @@ function CardItem({ album, HomeScreenCallBack }) {
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.body}>
+      <View style={[styles.body]}>
         <Text style={styles.bodyText}>
-          <Text style={styles.like}>{photographer.username} </Text>
+          <Text style={styles.like}>{photographer.name} </Text>
           {album.title}
         </Text>
       </View>
@@ -188,7 +177,10 @@ function CardItem({ album, HomeScreenCallBack }) {
           <Text>{album.albumType} </Text>
         </Text>
       </View>
-      <Comment listCmt={listCmt}></Comment>
+      <View style={{height: "auto"}}>
+        <Comment listCmt={listCmt}></Comment>
+      </View>
+
       <TouchableOpacity
         style={styles.loadMoreCmt}
         onPress={() => {
@@ -221,7 +213,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     overflow: "hidden",
     marginBottom: 15,
-    padding : 5
+    padding: 5,
   },
   cardItem1Style: {
     flexDirection: "row",

@@ -36,7 +36,7 @@ export default function RegisterPage({ navigation }: any) {
         { cancelable: false }
       );
     } else {
-      fetch("http://"+ CONNECTION_STRING.string +"/api/auth/Register", {
+      fetch( CONNECTION_STRING.string +"auth/Register", {
         method: "POST",
         headers: {
           Accept: "application/json",

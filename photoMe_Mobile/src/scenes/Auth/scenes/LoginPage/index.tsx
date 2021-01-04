@@ -47,7 +47,7 @@ export default function LoginPage({ navigation }: any) {
         { cancelable: false }
       );
     } else {
-      const url = "http://" + CONNECTION_STRING.string + "/api/auth/Login";
+      const url = CONNECTION_STRING.string + "auth/Login";
       const data = { userName: email, password: password };
       const config = {
         headers: {
