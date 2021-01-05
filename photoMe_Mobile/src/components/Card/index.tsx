@@ -15,7 +15,7 @@ import { RootState } from "../../services/redux/reducer";
 
 let deviceWidth = Dimensions.get("window").width;
 
-function CardItem({ album }) {
+function CardItem({ album, avatarUrl }) {
   const navigation = useNavigation();
   const photos = album["photos"];
   const photographer = album["photographer"];
@@ -126,7 +126,7 @@ function CardItem({ album }) {
       <View style={styles.cardItem1Style}>
         <View style={styles.headerStyle}>
           <Image
-            source={require("../../images/iconapp.png")}
+            source={{uri : avatarUrl}}
             style={styles.leftImage}
           ></Image>
           <View style={styles.headerContent}>

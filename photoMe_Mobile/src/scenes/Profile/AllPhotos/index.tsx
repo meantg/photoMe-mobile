@@ -1,6 +1,6 @@
 import Axios from "axios";
 import React, { Component } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, Text, SafeAreaView, FlatList } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CardItem from "../../../components/Card";
 import UserModel from "../../../values/models/UserModel";
@@ -27,8 +27,7 @@ function AllPhotos() {
   const { albums, loading } = state;
 
   React.useEffect(() => {
-      initNewfeed();
-    console.log(user);
+    initNewfeed();
   }, []);
 
   async function initNewfeed() {
@@ -41,27 +40,53 @@ function AllPhotos() {
         },
       };
       const url =
-        CONNECTION_STRING.string +"user/" + decoded.nameid + "/albums/all";
+        CONNECTION_STRING.string + "user/" + decoded.nameid + "/albums/all";
       const response = await Axios.get(url, config);
-      const album = response.data;
-      setState({
-        albums: album,
-        loading: false,
-      });
+      if (response.status == 200) {
+        const album = response.data;
+        console.log(album.length);
+
+        setState({
+          albums: album,
+          loading: false,
+        });
+      }
     }
   }
 
-  return (
-    <View style={styles.container}>
-      {albums.map((album) => (
-        <CardItem key={album["id"]} album={album} />
-      ))}
-    </View>
+  const renderCardAlbum = (album) => (
+    <CardItem
+      key={album["item"]["id"]}
+      album={album["item"]}
+      avatarUrl={user["avatarUrl"]}
+    />
   );
-}
+
+  if (state.albums && !loading) {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.container}>
+          <FlatList
+            style={{ flex: 1 }}
+            data={state.albums}
+            renderItem={renderCardAlbum}
+            keyExtractor={(item, index) => index.toString()}
+          ></FlatList>
+        </View>
+      </SafeAreaView>
+    );
+  } 
+    return (
+      <View>
+        <Text>You didn't upload anything yet !</Text>
+      </View>
+    );
+  }
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    height: "100%",
+  },
 });
 
 export default AllPhotos;

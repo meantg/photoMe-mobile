@@ -41,10 +41,6 @@ function HomeScreen({ navigation, route }) {
   const ref = React.useRef(null);
   useScrollToTop(ref);
 
-  const checkIsCmt = (isCmt) => {
-    setIsCmt(isCmt);
-  }
-
   const [refreshing, setRefreshing] = React.useState(false);
   const wait = (timeout) => {
     return new Promise((resolve) => {
@@ -52,13 +48,13 @@ function HomeScreen({ navigation, route }) {
     });
   };
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     console.log(isCmt);
-    
-    if(route.params?.param){
-      setIsCmt(route.params.param)
+
+    if (route.params?.param) {
+      setIsCmt(route.params.param);
     }
-  },[route.params?.isCmt])
+  }, [route.params?.isCmt]);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -68,7 +64,7 @@ function HomeScreen({ navigation, route }) {
     console.log("reload");
     wait(2000).then(() => {
       console.log("reload done");
-      setRefreshing(false)
+      setRefreshing(false);
     });
   }, []);
 
@@ -90,8 +86,7 @@ function HomeScreen({ navigation, route }) {
 
     if (token != null) {
       var decoded: any = jwt_decode(token);
-      const url =
-        CONNECTION_STRING.string + "user/" + decoded.nameid;
+      const url = CONNECTION_STRING.string + "user/" + decoded.nameid;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -123,27 +118,27 @@ function HomeScreen({ navigation, route }) {
   }
 
   async function initNewfeed() {
-      const token = await AsyncStorage.getItem("userToken");
-      if (token != null) {
-        var decoded: any = jwt_decode(token);
-        const config = {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        };
-        const url =
-          CONNECTION_STRING.string +
-          "user/" +
-          decoded.nameid +
-          "/albums/paged?page=" +
-          page +
-          "&pageSize=2";
-        const response = await Axios.get(url, config);
-        const album = response.data;
-        setState({
-          albums: album,
-        });
-      }
+    const token = await AsyncStorage.getItem("userToken");
+    if (token != null) {
+      var decoded: any = jwt_decode(token);
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      };
+      const url =
+        CONNECTION_STRING.string +
+        "user/" +
+        decoded.nameid +
+        "/albums/paged?page=" +
+        page +
+        "&pageSize=2";
+      const response = await Axios.get(url, config);
+      const album = response.data;
+      setState({
+        albums: album,
+      });
+    }
     setLoading(false);
   }
 
@@ -165,7 +160,7 @@ function HomeScreen({ navigation, route }) {
         "&pageSize=4";
       const response = await Axios.get(url, config);
       const album = response.data;
-      if(album){
+      if (album) {
         setState({
           albums: albums.concat(album),
         });
@@ -175,14 +170,18 @@ function HomeScreen({ navigation, route }) {
   }
 
   const renderCardAlbum = (album) => (
-    <CardItem key={album["item"]["id"]} album={album["item"]} />
+    <CardItem
+      key={album["item"]["id"]}
+      album={album["item"]}
+      avatarUrl={user["avatarUrl"]}
+    />
   );
- 
+
   const loadMore = () => {
     console.log("ReachEnd");
     console.log(isCmt);
 
-    if (loading == false ) {
+    if (loading == false) {
       setLoading(true);
       setPage(page + 1);
       loadMoreAlbum();
@@ -209,7 +208,7 @@ function HomeScreen({ navigation, route }) {
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <FlatList
-        ref={ref}
+          ref={ref}
           style={{ flex: 1 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

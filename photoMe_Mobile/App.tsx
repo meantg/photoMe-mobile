@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import "react-native-gesture-handler";
+import { registerRootComponent } from 'expo';
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createStackNavigator,
@@ -176,3 +177,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+
+registerRootComponent(App);

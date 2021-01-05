@@ -11,12 +11,19 @@ import {
   TouchableHighlight,
   Alert,
   ActivityIndicator,
+  TextInput,
+  SafeAreaView,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import CONNECTION_STRING from "../../../../values/ConnectionString";
 import ChatBox from "./ChatBox";
 import jwt_decode from "jwt-decode";
-import { SearchBar } from 'react-native-elements';
+import { FontAwesome } from "@expo/vector-icons";
+import Highlighter from "react-native-highlight-words";
+import SearchResult from "./ChatBox/SearchResult";
 
 type User = {
   name: string;
@@ -29,6 +36,12 @@ function ListContact({ navigation }) {
   const [listContact, setContact] = React.useState([]);
   const [listUser, setListUser] = React.useState<User[]>();
   const [isLoadDone, setDone] = React.useState(false);
+
+  const [search, setSearch] = React.useState("");
+  const [searchResult, setSearchResult] = React.useState([]);
+  const [isSearch, setSearchRender] = React.useState(false);
+  const textInputReference = React.useRef(null);
+  const NO_WIDTH_SPACE = "​";
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
@@ -72,51 +85,82 @@ function ListContact({ navigation }) {
     }
   };
 
-  const getUserInfo = async () => {
-    console.log("getUserInfo");
-    const dataList: User[] = [];
-
+  const searchFilter = async (text) => {
+    setSearch(text);
     const token = await AsyncStorage.getItem("userToken");
+    if (token != null) {
+      const url = CONNECTION_STRING.string + "user/search";
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-type": "application/json",
+          Accept: "application/json",
+        },
+      };
+      const body = {
+        username: text,
+      };
 
-    if (token !== null) {
-      listContact.map(async (contactId) => {
-        console.log(contactId);
-        console.log("RunAPI");
-
-        const url = +CONNECTION_STRING.string + "user/" + contactId;
-        const config = {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        };
-        try {
-          const res = Axios.get(url, config);
-          if ((await res).status == 200) {
-            const data = (await res).data;
-            if (data !== null) {
-              console.log("getUserDone");
-              const _user: User = { name: data.userName, id: data.id };
-              dataList.push(_user);
-            }
-          }
-        } catch (err) {
-          console.log(err);
+      const jsonBody = JSON.stringify(body);
+      try {
+        const res = Axios.post(url, jsonBody, config);
+        if ((await res).status == 200) {
+          const data = (await res).data;
+          setSearchResult(data);
         }
-      });
-      setListUser(dataList);
-      setDone(true);
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 
   if (listContact) {
     return (
       <View>
-        <SearchBar></SearchBar>
-        <ScrollView style={styles.scrollStyle}>
-          {listContact.map((user, index) => {
-            return <ChatBox key={index} Contact={user}></ChatBox>;
-          })}
-        </ScrollView>
+        <SafeAreaView style={{ flex: 1 }}>
+          <TextInput
+            style={{
+              height: 40,
+              borderWidth: 1,
+              paddingLeft: 20,
+              borderRadius: 15,
+              margin: 5,
+              borderColor: "#009688",
+              backgroundColor: "#FFFFFF",
+            }}
+            placeholder="⚲ Search someone ..."
+            onChangeText={(text) => searchFilter(text)}
+            clearButtonMode="always"
+            onFocus={() => {
+              setSearchRender(true);
+            }}
+            onBlur={() => {
+              if (search == "") setSearchRender(false);
+            }}
+            value={search}
+          ></TextInput>
+        </SafeAreaView>
+        {!isSearch ? (
+          //notSearching
+          <ScrollView style={styles.scrollStyle}>
+            {listContact.map((user, index) => {
+              return <ChatBox key={index} Contact={user}></ChatBox>;
+            })}
+          </ScrollView>
+        ) : (
+          //Searching
+          <ScrollView style={styles.scrollStyle}>
+            {searchResult.map((result, index) => {
+              return (
+                <SearchResult
+                  search={search}
+                  result={result}
+                  key={index}
+                ></SearchResult>
+              );
+            })}
+          </ScrollView>
+        )}
       </View>
     );
   } else {
@@ -138,9 +182,13 @@ function ListContact({ navigation }) {
 export default ListContact;
 
 const styles = StyleSheet.create({
+  highlighted: {
+    backgroundColor: "yellow",
+  },
   scrollStyle: {
     padding: 5,
-    marginTop: 10,
+    marginTop: 45,
+    height: "100%",
   },
   centeredView: {
     flex: 1,
@@ -177,6 +225,10 @@ const styles = StyleSheet.create({
   },
   modalText: {
     marginBottom: 15,
+    position: "absolute",
+    top: -30,
+    left: 50,
+    fontSize: 30,
     textAlign: "center",
   },
   body: {

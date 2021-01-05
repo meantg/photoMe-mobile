@@ -10,6 +10,7 @@ type UserModel = {
     phone: string;
     role: string;
     gender: string;
+    avatarUrl : string
 };
 
 export default UserModel;

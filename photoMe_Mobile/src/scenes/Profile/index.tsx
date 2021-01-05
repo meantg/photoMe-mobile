@@ -17,9 +17,9 @@ function ProfilePage({ navigation }: any) {
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("ProfilePage");
+      console.log(user);
     });
     getToken();
-
     return unsubscribe;
   }, [navigation]);
 
@@ -32,7 +32,7 @@ function ProfilePage({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.infoContainer}>
         <View style={styles.groupRow}>
-          <Icon name="user-circle" style={styles.icon}></Icon>
+          <Image source={{uri : user.avatarUrl}} style={{width: 75, borderRadius: 50}}></Image>
           <View style={styles.meantg1Column}>
             <Text style={styles.meantg1}>{user.name}</Text>
             <Text style={styles.photographer}>Photographer</Text>

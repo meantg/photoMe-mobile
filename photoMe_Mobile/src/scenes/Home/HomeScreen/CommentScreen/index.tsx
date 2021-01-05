@@ -25,18 +25,19 @@ import { useSelector, dispatch } from "../../../../../node_modules/react-redux";
 import { RootState } from "../../../../services/redux/reducer";
 
 const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get('window').height;
 
 function CommentScreen({ navigation, route }) {
   const user = useSelector((state: RootState) => state.user);
   const [isCmt, setIsCmt] = React.useState(true);
   const [cmtInput, setInput] = React.useState("");
-  const [submit, setSubmit] = React.useState(false);
+  const [inputHeight, setHeight] = React.useState(0);
   const [listCmt, setCmt] = React.useState([]);
   const album = route.params.album;
 
   const goBack = () => {
     setIsCmt(false);
-    navigation.navigate("Home", {
+    navigation.goBack("Home", {
       param: isCmt,
     });
   };
@@ -44,6 +45,7 @@ function CommentScreen({ navigation, route }) {
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("Comment");
+      console.log(album);
     });
     getComments();
   }, []);
@@ -52,8 +54,7 @@ function CommentScreen({ navigation, route }) {
     const token = await AsyncStorage.getItem("userToken");
     if (token != null) {
       var decode: any = jwt_decode(token);
-      const url =
-        CONNECTION_STRING.string + "review/" + album.id;
+      const url = CONNECTION_STRING.string + "review/" + album.id;
       const config = {
         headers: {
           Authorization: "Bearer " + token,
@@ -80,8 +81,7 @@ function CommentScreen({ navigation, route }) {
       const token = await AsyncStorage.getItem("userToken");
       if (token != null) {
         var decoded: any = jwt_decode(token);
-        const url =
-          CONNECTION_STRING.string + "review/new-review";
+        const url = CONNECTION_STRING.string + "review/new-review";
         const config = {
           headers: {
             Authorization: "Bearer " + token,
@@ -102,7 +102,7 @@ function CommentScreen({ navigation, route }) {
           if ((await response).status == 200) {
             console.log(response.data);
             const newCmt = response.data;
-            newCmt["maker"]={"name" : user.name}
+            newCmt["maker"] = { name: user.name };
             setCmt(listCmt.concat(newCmt));
             console.log("cmt done");
           }
@@ -113,11 +113,10 @@ function CommentScreen({ navigation, route }) {
     } else {
       console.log("Cmt null");
     }
-
   };
 
   return (
-    <View style={{ height: "100%" }}>
+    <View style={{ display: "flex", height: "100%" }}>
       <TouchableOpacity
         onPress={goBack}
         style={{
@@ -135,75 +134,100 @@ function CommentScreen({ navigation, route }) {
           size={24}
           color="black"
         />
-        <Text style={{ color: "black", letterSpacing: 2, fontWeight: '600' }}>  COMMENT</Text>
+        <Text style={{ color: "black", letterSpacing: 2, fontWeight: "600" }}>
+          {" "}
+          COMMENT
+        </Text>
       </TouchableOpacity>
       <View style={{ marginTop: 10 }}>
         <Text style={styles.bodyText}>
-          <Text style={styles.like}> {album["photographer"].username} </Text>
+          <Text style={styles.like}> {album.photographer.name}</Text>{" "}
           {album.title}
         </Text>
-        <Text style={{ marginLeft: 5, marginBottom: 5 }}>OTHER COMMENT</Text>
+        <Text
+          style={{
+            fontSize: 16,
+            color: "#424242",
+            marginLeft: 15,
+            marginTop: -15,
+            marginBottom: 10,
+            fontStyle: "italic",
+          }}
+        >
+          {album.albumType}
+        </Text>
+        <Text
+          style={{
+            marginLeft: 5,
+            marginBottom: 5,
+            fontSize: 15,
+            letterSpacing: 2,
+            fontWeight: "bold",
+          }}
+        >
+          OTHER COMMENT
+        </Text>
       </View>
-      <KeyboardAvoidingView
-        keyboardVerticalOffset={110}
-        style={{ flex: 1, position: "absolute", bottom: 0 }}
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView style={{height: 200}} >
+        <ScrollView style={{  marginTop: 15 }}>
           <Comment listCmt={listCmt}></Comment>
         </ScrollView>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View
+        <TouchableWithoutFeedback
+          onPress={Keyboard.dismiss}
+        ></TouchableWithoutFeedback>
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: "#679b9b",
+            bottom: inputHeight,
+            padding: 20,
+            position: "absolute"
+          }}
+        >
+          <Image
+            source={require("../../../../images/iconapp.png")}
+            resizeMode="contain"
             style={{
-              flex: 1,
-              flexDirection: "row",
-              backgroundColor: "#679b9b",
-              width: windowWidth,
-              paddingBottom: 10,
-              paddingTop: 20,
-              paddingLeft: 12,
+              width: 40,
+              height: 40,
+              borderWidth: 1,
+              borderRadius: 90,
+              marginRight: 5,
+              borderColor: "rgba(236,231,231,1)",
             }}
-          >
-            <Image
-              source={require("../../../../images/iconapp.png")}
-              resizeMode="contain"
-              style={{
-                width: 40,
-                maxWidth: 140,
-                height: 40,
-                borderWidth: 1,
-                borderRadius: 90,
-                marginRight: 5,
-                borderColor: "rgba(236,231,231,1)",
-              }}
-            ></Image>
-            <TextInput
-              // value={this.state.email}
-              style={{
-                borderWidth: 1,
-                borderRadius: 20,
-                marginRight: 20,
-                padding: 10,
-                marginBottom: 15,
-                borderColor: "white",
-                color: "white",
-                width: "85%",
-              }}
-              placeholder="WRITE YOUR COMMENTS HERE"
-              placeholderTextColor="white"
-              onChangeText={(text) => {
-                setInput(text);
-              }}
-              keyboardAppearance="dark"
-              clearButtonMode="always"
-              value={cmtInput}
-              blurOnSubmit={false}
-              onSubmitEditing={onPostComment}
-              maxLength={80}
-              autoFocus={true}
-            />
-          </View>
-        </TouchableWithoutFeedback>
+          ></Image>
+          <TextInput
+            // value={this.state.email}
+            style={{
+              borderWidth: 1,
+              borderRadius: 20,
+              marginRight: 20,
+              padding: 10,
+              borderColor: "white",
+              color: "white",
+              height: 40,
+              width: "85%",
+            }}
+            placeholder="WRITE YOUR COMMENTS HERE"
+            placeholderTextColor="white"
+            onChangeText={(text) => {
+              setInput(text);
+            }}
+            keyboardAppearance="dark"
+            clearButtonMode="always"
+            value={cmtInput}
+            blurOnSubmit={false}
+            onSubmitEditing={onPostComment}
+            onFocus={()=> { setHeight(270)}}
+            onBlur= {()=> { setHeight(0)}}
+            maxLength={80}
+            returnKeyType="send"
+            autoFocus={true}
+          />
+        </View>
       </KeyboardAvoidingView>
     </View>
   );

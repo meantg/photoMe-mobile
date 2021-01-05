@@ -27,6 +27,7 @@ import signalR, { HubConnection } from "@microsoft/signalr";
 type User = {
   name: string;
   id: string;
+  avatarUrl : string
 };
 
 
@@ -115,7 +116,7 @@ function ChatBox({ Contact }) {
           const data = (await res).data;
           if (data !== null) {
             console.log("getUserDone");
-            const _user: User = { name: data.userName, id: data.id };
+            const _user: User = { name: data.userName, id: data.id, avatarUrl : data.avatarUrl };
             dataList.push(_user);
           }
         }
@@ -137,7 +138,7 @@ function ChatBox({ Contact }) {
   const sendMsg = async () => {
     if (msg != "") {
       const token = await AsyncStorage.getItem("userToken");
-      const listMessage: MessageModel[] = [];
+      // const listMessage: MessageModel[] = listMsg;
       
       if (token != null) {
         const url = CONNECTION_STRING.string + "chat/send/" + Contact;
@@ -159,27 +160,22 @@ function ChatBox({ Contact }) {
         try {
           const res = await Axios.post(url, jsonBody, config);
           if (res.status == 200) {
-            console.log(res.data);
             console.log("SendDone");
-            const newMessage : MessageModel = {
-              senderId : res.data.senderId,
-              receiverId : res.data.receiverId,
-              content: res.data.content,
-              type: 'send'
-            };
-            listMessage.push(newMessage);
+            const newMessage = res.data;
+            newMessage["type"] = "send";
+            setListMsg(listMsg?.concat(newMessage));
 
           }
         } catch (err) {
           console.log(err);
         }
-
-        setListMsg(listMessage);
       }
     }
   };
 
   if (listUser && isLoadDone) {
+    console.log(listUser);
+    
     return (
       <View style={styles.body}>
         <TouchableOpacity
@@ -187,7 +183,7 @@ function ChatBox({ Contact }) {
           onPress={() => setModalVisible(true)}
         >
           <Image
-            source={require("../../../../../images/iconapp.png")}
+            source={{uri : listUser[0]["avatarUrl"]}}
             resizeMode="contain"
             style={{
               width: 40,
@@ -218,7 +214,7 @@ function ChatBox({ Contact }) {
               <KeyboardAvoidingView
                 keyboardVerticalOffset={110}
                 style={{ flex: 1 }}
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                behavior={Platform.OS == "ios" ? "padding" : "height"}
               >
                 <MessageBox
                   listMessage={listMsg}

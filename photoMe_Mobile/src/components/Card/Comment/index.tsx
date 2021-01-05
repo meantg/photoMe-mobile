@@ -14,7 +14,7 @@ function Comment({ listCmt }) {
           return (
             <View key={cmt["id"]} style={styles.body}>
               <Image
-                source={require("../../../images/iconapp.png")}
+                source={{uri : cmt["maker"]["avatarUrl"]}}
                 resizeMode="contain"
                 style={{
                   width: 40,

@@ -116,24 +116,6 @@ export default function HomePage() {
           ),
         }}
       />
-      <Tab.Screen
-        name="Settings"
-        component={NewProfile}
-        options={{
-          tabBarLabel: "Profile",
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="settings" size={26} color={color} />
-          ),
-        }}
-      />
     </Tab.Navigator>
-  );
-}
-
-function SearchScreen() {
-  return (
-    <View>
-      <Text>SearchScreen</Text>
-    </View>
   );
 }

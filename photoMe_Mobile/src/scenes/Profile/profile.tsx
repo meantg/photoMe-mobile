@@ -19,36 +19,62 @@ import { useSelector, dispatch } from "react-redux";
 import { setUser } from "../../services/redux/slices/userSlices";
 import { RootState } from "../../services/redux/reducer";
 import CONNECTION_STRING from "../../values/ConnectionString";
-import { MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import AlbumCard from "../../components/AlbumCard";
+import CardItem from "../../components/Card";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 function NewProfile({ navigation }: any) {
   const user = useSelector((state: RootState) => state.user);
+  const [albums, setAlbums] = React.useState([]);
+  const [isLoading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("ProfilePage");
+      initNewfeed();
     });
     getToken();
 
     return unsubscribe;
-  }, [navigation]);
+  }, []);
 
   const getToken = async () => {
     const token = await AsyncStorage.getItem("userToken");
     console.log(token);
   };
 
+  async function initNewfeed() {
+    const token = await AsyncStorage.getItem("userToken");
+    if (token != null) {
+      var decoded: any = jwt_decode(token);
+      const config = {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      };
+      const url =
+        CONNECTION_STRING.string + "user/" + decoded.nameid + "/albums/all";
+      const response = await Axios.get(url, config);
+      if (response.status == 200) {
+        const album = response.data;
+        setAlbums(album);
+        setLoading(false);
+      }
+    }
+  }
+  
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.landscape}>
         <Image
-          source={require("../../images/iconapp.png")}
+          source={{ uri: user["avatarUrl"] }}
           style={{ flex: 1, width: undefined, height: 100, opacity: 0.8 }}
+          resizeMode="cover"
         ></Image>
         <BlurView
           intensity={80}
@@ -86,17 +112,17 @@ function NewProfile({ navigation }: any) {
             bottom: 50,
             right: 15,
             height: 60,
-            backgroundColor: "#fff",
+            backgroundColor: "#f05454",
             borderRadius: 15,
           }}
         >
-          <Icon name="plus" size={30} color="#01a699" />
+          <AntDesign name="heart" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
       <View style={styles.botProfile}>
         <TouchableOpacity
           style={{
-            borderWidth: 1,
+            borderWidth: 0,
             borderColor: "rgba(0,0,0,0.2)",
             alignItems: "center",
             justifyContent: "center",
@@ -105,12 +131,12 @@ function NewProfile({ navigation }: any) {
             top: -45,
             right: 10,
             height: 70,
-            backgroundColor: "#fff",
+            backgroundColor: "#637373",
             borderRadius: 15,
             zIndex: 6,
           }}
         >
-          <Icon name="plus" size={30} color="#01a699" />
+          <Entypo name="new-message" size={35} color="#fff" />
         </TouchableOpacity>
         <View style={{}}>
           <View style={styles.listAlbums}>
@@ -118,15 +144,18 @@ function NewProfile({ navigation }: any) {
               style={{
                 position: "absolute",
                 marginTop: 40,
+                marginLeft: -10,
+                fontSize: 20,
                 transform: [{ rotate: "90deg" }],
               }}
             >
               Albums
             </Text>
             <ScrollView
-              style={{ marginLeft: 50 }}
+              style={{ marginLeft: 50, backgroundColor: "#ffeadb" }}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
+              
             >
               <AlbumCard></AlbumCard>
               <AlbumCard></AlbumCard>
@@ -147,57 +176,21 @@ function NewProfile({ navigation }: any) {
             >
               Photos
             </Text>
-            <MaskedViewIOS
-              style={{ flex: 1, flexDirection: "row", height: "100%" }}
-              maskElement={
-                <View
-                  style={{
-                    // Transparent background because mask is based off alpha channel.
-                    backgroundColor: "transparent",
-                    flex: 1,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: 60,
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Basic Mask
-                  </Text>
-                </View>
-              }
-            >
-              {/* Shows behind the mask, you can put anything here, such as an image */}
-              <View
-                style={{
-                  flex: 1,
-                  height: "100%",
-                  backgroundColor: "#324376",
-                }}
-              />
-              <View
-                style={{
-                  flex: 1,
-                  height: "100%",
-                  backgroundColor: "#F5DD90",
-                }}
-              />
-              <View
-                style={{
-                  flex: 1,
-                  height: "100%",
-                  backgroundColor: "#F76C5E",
-                }}
-              />
-            </MaskedViewIOS>
+            <View>
+            {albums.map((album) => {
+              return (
+                <CardItem
+                  key={album["id"]}
+                  album={album}
+                  avatarUrl={user["avatarUrl"]}
+                />
+              );
+            })}
+            </View>
           </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -208,7 +201,7 @@ const styles = StyleSheet.create({
 
   listAlbums: {
     height: windowHeight / 6,
-    backgroundColor: "grey",
+    backgroundColor: "#ff9a76"
   },
 
   listPhotos: {
