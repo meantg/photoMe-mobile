@@ -1,12 +1,15 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
+import { useSelector, dispatch } from "../../../../node_modules/react-redux";
+import { RootState } from "../../../services/redux/reducer";
 
 function Comment({ listCmt }) {
+  const user = useSelector((state: RootState) => state.user);
   const cmts = listCmt;
 
   if (cmts && cmts.length) {
     return (
-      <View style={{ display: "flex", marginTop: 10, }}>
+      <View style={{ display: "flex", marginTop: 15, marginBottom: 80 }}>
         {cmts.map((cmt) => {
           const time: string = cmt["updatedAt"];
           const days = time.substr(0, 10);
@@ -14,7 +17,7 @@ function Comment({ listCmt }) {
           return (
             <View key={cmt["id"]} style={styles.body}>
               <Image
-                source={{uri : cmt["maker"]["avatarUrl"]}}
+                source={{uri : cmt.maker.avatarUrl}}
                 resizeMode="contain"
                 style={{
                   width: 40,

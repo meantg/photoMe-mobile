@@ -27,10 +27,8 @@ import signalR, { HubConnection } from "@microsoft/signalr";
 type User = {
   name: string;
   id: string;
-  avatarUrl : string
+  avatarUrl: string;
 };
-
-
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -116,7 +114,11 @@ function ChatBox({ Contact }) {
           const data = (await res).data;
           if (data !== null) {
             console.log("getUserDone");
-            const _user: User = { name: data.userName, id: data.id, avatarUrl : data.avatarUrl };
+            const _user: User = {
+              name: data.userName,
+              id: data.id,
+              avatarUrl: data.avatarUrl,
+            };
             dataList.push(_user);
           }
         }
@@ -139,7 +141,7 @@ function ChatBox({ Contact }) {
     if (msg != "") {
       const token = await AsyncStorage.getItem("userToken");
       // const listMessage: MessageModel[] = listMsg;
-      
+
       if (token != null) {
         const url = CONNECTION_STRING.string + "chat/send/" + Contact;
         const config = {
@@ -164,18 +166,18 @@ function ChatBox({ Contact }) {
             const newMessage = res.data;
             newMessage["type"] = "send";
             setListMsg(listMsg?.concat(newMessage));
-
           }
         } catch (err) {
           console.log(err);
         }
       }
     }
+    setMsg("")
   };
 
   if (listUser && isLoadDone) {
     console.log(listUser);
-    
+
     return (
       <View style={styles.body}>
         <TouchableOpacity
@@ -183,7 +185,7 @@ function ChatBox({ Contact }) {
           onPress={() => setModalVisible(true)}
         >
           <Image
-            source={{uri : listUser[0]["avatarUrl"]}}
+            source={{ uri: listUser[0]["avatarUrl"] }}
             resizeMode="contain"
             style={{
               width: 40,
@@ -210,6 +212,17 @@ function ChatBox({ Contact }) {
             onShow={() => getMessage()}
           >
             <View style={styles.modalView}>
+              <Image
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  position: "absolute",
+                  top: -35,
+                  left: -5,
+                }}
+                source={{ uri: listUser[0]["avatarUrl"] }}
+              ></Image>
               <Text style={styles.modalText}>{findName(Contact)}</Text>
               <KeyboardAvoidingView
                 keyboardVerticalOffset={110}
@@ -300,7 +313,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     position: "absolute",
     top: -30,
-    left: 0,
+    left: 50,
     fontSize: 30,
     textAlign: "center",
   },
@@ -308,8 +321,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     paddingLeft: 12,
-    paddingBottom: 26,
-    paddingRight: 16,
+    paddingBottom: 5
   },
   bodyText: {
     lineHeight: 20,

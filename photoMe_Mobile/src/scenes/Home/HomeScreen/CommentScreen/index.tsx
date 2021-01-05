@@ -25,7 +25,7 @@ import { useSelector, dispatch } from "../../../../../node_modules/react-redux";
 import { RootState } from "../../../../services/redux/reducer";
 
 const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get('window').height;
+const windowHeight = Dimensions.get("window").height;
 
 function CommentScreen({ navigation, route }) {
   const user = useSelector((state: RootState) => state.user);
@@ -45,7 +45,6 @@ function CommentScreen({ navigation, route }) {
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("Comment");
-      console.log(album);
     });
     getComments();
   }, []);
@@ -102,8 +101,11 @@ function CommentScreen({ navigation, route }) {
           if ((await response).status == 200) {
             console.log(response.data);
             const newCmt = response.data;
-            newCmt["maker"] = { name: user.name };
+            console.log(newCmt);
+            newCmt["maker"] = { name: user.name, avatarUrl: user.avatarUrl };
             setCmt(listCmt.concat(newCmt));
+            console.log(newCmt);
+
             console.log("cmt done");
           }
         } catch (err) {
@@ -168,67 +170,71 @@ function CommentScreen({ navigation, route }) {
           OTHER COMMENT
         </Text>
       </View>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView style={{  marginTop: 15 }}>
-          <Comment listCmt={listCmt}></Comment>
-        </ScrollView>
         <TouchableWithoutFeedback
           onPress={Keyboard.dismiss}
         ></TouchableWithoutFeedback>
-        <View
-          style={{
-            flexDirection: "row",
-            backgroundColor: "#679b9b",
-            bottom: inputHeight,
-            padding: 20,
-            position: "absolute"
-          }}
-        >
-          <Image
-            source={require("../../../../images/iconapp.png")}
-            resizeMode="contain"
-            style={{
-              width: 40,
-              height: 40,
-              borderWidth: 1,
-              borderRadius: 90,
-              marginRight: 5,
-              borderColor: "rgba(236,231,231,1)",
-            }}
-          ></Image>
-          <TextInput
-            // value={this.state.email}
-            style={{
-              borderWidth: 1,
-              borderRadius: 20,
-              marginRight: 20,
-              padding: 10,
-              borderColor: "white",
-              color: "white",
-              height: 40,
-              width: "85%",
-            }}
-            placeholder="WRITE YOUR COMMENTS HERE"
-            placeholderTextColor="white"
-            onChangeText={(text) => {
-              setInput(text);
-            }}
-            keyboardAppearance="dark"
-            clearButtonMode="always"
-            value={cmtInput}
-            blurOnSubmit={false}
-            onSubmitEditing={onPostComment}
-            onFocus={()=> { setHeight(270)}}
-            onBlur= {()=> { setHeight(0)}}
-            maxLength={80}
-            returnKeyType="send"
-            autoFocus={true}
-          />
-        </View>
+        <ScrollView style={{ marginTop: 15 }}>
+          <Comment listCmt={listCmt}></Comment>
+        </ScrollView>
       </KeyboardAvoidingView>
+      <View
+        style={{
+          flexDirection: "row",
+          backgroundColor: "#679b9b",
+          bottom: inputHeight,
+          padding: 20,
+          position: "absolute",
+        }}
+      >
+        <Image
+          source={{ uri: user.avatarUrl }}
+          resizeMode="contain"
+          style={{
+            width: 40,
+            height: 40,
+            borderWidth: 1,
+            borderRadius: 90,
+            marginRight: 5,
+            borderColor: "rgba(236,231,231,1)",
+          }}
+        ></Image>
+        <TextInput
+          // value={this.state.email}
+          style={{
+            borderWidth: 1,
+            borderRadius: 20,
+            marginRight: 20,
+            padding: 10,
+            borderColor: "white",
+            color: "white",
+            height: 40,
+            width: "85%",
+          }}
+          placeholder="WRITE YOUR COMMENTS HERE"
+          placeholderTextColor="white"
+          onChangeText={(text) => {
+            setInput(text);
+          }}
+          keyboardAppearance="dark"
+          clearButtonMode="always"
+          value={cmtInput}
+          blurOnSubmit={false}
+          onSubmitEditing={onPostComment}
+          onFocus={() => {
+            setHeight(270);
+          }}
+          onBlur={() => {
+            setHeight(0);
+          }}
+          maxLength={80}
+          returnKeyType="send"
+          autoFocus={true}
+        />
+      </View>
     </View>
   );
 }

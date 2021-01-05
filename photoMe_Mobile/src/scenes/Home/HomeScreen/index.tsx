@@ -133,11 +133,16 @@ function HomeScreen({ navigation, route }) {
         "/albums/paged?page=" +
         page +
         "&pageSize=2";
-      const response = await Axios.get(url, config);
-      const album = response.data;
-      setState({
-        albums: album,
-      });
+      try {
+        const response = await Axios.get(url, config);
+        const album = response.data;
+        console.log(album);
+        setState({
+          albums: album,
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
     setLoading(false);
   }

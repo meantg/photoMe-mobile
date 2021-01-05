@@ -20,6 +20,7 @@ import CONNECTION_STRING from "../../../../../../values/ConnectionString";
 import { useSelector, dispatch } from "react-redux";
 import { RootState } from "../../../../../../services/redux/reducer";
 import Axios from "axios";
+import { useNavigation } from "@react-navigation/native";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -29,16 +30,13 @@ function SearchResult({ result, search }) {
   const [inputHeight, setHeight] = React.useState(0);
   const [msg, setMsg] = React.useState("");
 
-  console.log("RenderResult");
-
-  const onPostComment = async () => {
+  const sendMsg = async () => {
+    
     if (msg != "") {
-      console.log("PostComment");
-      setMsg("");
 
       const token = await AsyncStorage.getItem("userToken");
       if (token != null) {
-        const url = CONNECTION_STRING.string + "review/new-review";
+        const url = CONNECTION_STRING.string + "chat/send/" + result.id;
         const config = {
           headers: {
             Authorization: "Bearer " + token,
@@ -67,6 +65,8 @@ function SearchResult({ result, search }) {
     } else {
       console.log("Cmt null");
     }
+    setMsg("")
+    setModalVisible(false)
   };
 
   return (
@@ -148,7 +148,7 @@ function SearchResult({ result, search }) {
                     setHeight(0);
                   }}
                   style={styles.inputInbox}
-                  onSubmitEditing={onPostComment}
+                  onSubmitEditing={sendMsg}
                   blurOnSubmit={false}
                   onChangeText={(text) => {setMsg(text)}}
                 ></TextInput>

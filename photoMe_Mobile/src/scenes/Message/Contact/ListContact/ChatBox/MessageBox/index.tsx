@@ -17,10 +17,6 @@ const windowHeight = Dimensions.get("window").height;
 function MessageBox({ listMessage, contact }) {
   const user = useSelector((state: RootState) => state.user);
 
-  const senderMsg = () =>{
-
-  }
-
   if (listMessage && listMessage.length) {
     return (
       <ScrollView style={styles.msgBox}>
@@ -31,17 +27,34 @@ function MessageBox({ listMessage, contact }) {
                 key={index}
                 style={{
                   display: "flex",
-                  width: windowWidth,
+                  height: 30,
+                  alignSelf: "flex-end",
+                  justifyContent:"center",
+                  borderRadius: 25,
+                  backgroundColor: "#ff9a76"
                 }}
               >
-                <Text>{msg["content"]}</Text>
+                <Text style={{color: '#ffffff', alignSelf: 'center', fontSize : 20}} >{"  "}{msg["content"]} {" "}</Text>
                 {/* <TextInput key={1} style={styles.input}></TextInput> */}
               </View>
             );
           }
-          else{
+          else {
             return(
-              <View></View>
+              <View
+                key={index}
+                style={{
+                  display: "flex",
+                  height: 30,
+                  justifyContent:"center",
+                  alignSelf: "flex-start",
+                  borderRadius: 25,
+                  backgroundColor: "grey"
+                }}
+              >
+                <Text style={{color: '#ffffff', alignSelf: 'center',  fontSize : 20}} >{"  "}{msg["content"]} {"   "}</Text>
+                {/* <TextInput key={1} style={styles.input}></TextInput> */}
+              </View>
             )
           }
         })}
@@ -66,8 +79,8 @@ const styles = StyleSheet.create({
   msgBox: {
     width: "100%",
     height: "auto",
-    backgroundColor: "grey",
-    padding: 15
+    padding: 15,
+    marginTop: 10
   },
 });
 
