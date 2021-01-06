@@ -9,7 +9,7 @@ function Comment({ listCmt }) {
 
   if (cmts && cmts.length) {
     return (
-      <View style={{ display: "flex", marginTop: 15, marginBottom: 80 }}>
+      <View style={{ display: "flex", marginTop: 15 }}>
         {cmts.map((cmt) => {
           const time: string = cmt["updatedAt"];
           const days = time.substr(0, 10);

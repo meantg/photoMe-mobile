@@ -136,7 +136,6 @@ function HomeScreen({ navigation, route }) {
       try {
         const response = await Axios.get(url, config);
         const album = response.data;
-        console.log(album);
         setState({
           albums: album,
         });

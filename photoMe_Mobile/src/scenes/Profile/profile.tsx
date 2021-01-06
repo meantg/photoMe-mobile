@@ -66,7 +66,6 @@ function NewProfile({ navigation }: any) {
       }
     }
   }
-  
 
   return (
     <ScrollView style={styles.container}>
@@ -155,15 +154,10 @@ function NewProfile({ navigation }: any) {
               style={{ marginLeft: 50, backgroundColor: "#ffeadb" }}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
-              
             >
-              <AlbumCard></AlbumCard>
-              <AlbumCard></AlbumCard>
-              <AlbumCard></AlbumCard>
-              <AlbumCard></AlbumCard>
-              <AlbumCard></AlbumCard>
-              <AlbumCard></AlbumCard>
-              <AlbumCard></AlbumCard>
+              {albums.map((album, index) => {
+                return <AlbumCard key={index} album={album}></AlbumCard>;
+              })}
             </ScrollView>
           </View>
           <View style={styles.listPhotos}>
@@ -177,15 +171,15 @@ function NewProfile({ navigation }: any) {
               Photos
             </Text>
             <View>
-            {albums.map((album) => {
-              return (
-                <CardItem
-                  key={album["id"]}
-                  album={album}
-                  avatarUrl={user["avatarUrl"]}
-                />
-              );
-            })}
+              {albums.map((album) => {
+                return (
+                  <CardItem
+                    key={album["id"]}
+                    album={album}
+                    avatarUrl={user["avatarUrl"]}
+                  />
+                );
+              })}
             </View>
           </View>
         </View>
@@ -201,7 +195,7 @@ const styles = StyleSheet.create({
 
   listAlbums: {
     height: windowHeight / 6,
-    backgroundColor: "#ff9a76"
+    backgroundColor: "#ff9a76",
   },
 
   listPhotos: {

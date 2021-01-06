@@ -1,21 +1,42 @@
 import { ImageBrowser } from "expo-image-picker-multiple";
 import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import * as ImageManipulator from 'expo-image-manipulator';
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import * as ImageManipulator from "expo-image-manipulator";
+
+type Image = {
+  uri: string;
+  name: string;
+  type: string;
+};
 
 function MultipleImage({ navigation }) {
-
   const _renderDoneButton = (count, onSubmit) => {
-    if (!count) return null;
-    return <TouchableOpacity onPress={onSubmit}>
-      <Text style={{color: "blue", fontSize: 300}} onPress={onSubmit}>Done   </Text>
-    </TouchableOpacity>
-  }
+    if (!count)
+      return (
+        <TouchableOpacity>
+          <Text>Done</Text>
+        </TouchableOpacity>
+      );
+    return (
+      <TouchableOpacity onPress={onSubmit}>
+        <Text style={{ color: "blue", fontSize: 300 }} onPress={onSubmit}>
+          {" "}
+          Done{" "}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   const updateHandler = (count, onSubmit) => {
     navigation.setOptions({
       title: `Selected ${count} files`,
-      headerRight: () => _renderDoneButton(count, onSubmit)
+      headerRight: () => _renderDoneButton(count, onSubmit),
     });
   };
 
@@ -26,13 +47,13 @@ function MultipleImage({ navigation }) {
   );
 
   const _getHeaderLoader = () => (
-    <ActivityIndicator size='small' color={'#0580FF'}/>
+    <ActivityIndicator size="small" color={"#0580FF"} />
   );
 
-  const  _processImageAsync = async (uri) => {
+  const _processImageAsync = async (uri) => {
     const file = await ImageManipulator.manipulateAsync(
       uri,
-      [{resize: { width: 1000 }}],
+      [{ resize: { width: 1000 } }],
       { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
     );
     return file;
@@ -40,29 +61,30 @@ function MultipleImage({ navigation }) {
 
   const imagesCallback = (callback) => {
     navigation.setOptions({
-      headerRight: () => _getHeaderLoader()
+      headerRight: () => _getHeaderLoader(),
     });
 
-    callback.then(async (photos) => {
-      // const cPhotos = [];
-      // photos.map(async (photo)=>{
-      //   const pPhoto = await _processImageAsync(photo.uri);
-      //   const img = {
-      //     uri : pPhoto.uri,
-      //     name : photo.filename,
-      //     type : 'image/jpg'
-      //   }
-      //   cPhotos.push(img)
-      // })
-      navigation.navigate('Upload');
-    })
-    .catch((e) => console.log(e));
+    callback
+      .then(async (photos) => {
+        const cPhotos: Image[] = [];
+        for (let photo of photos) {
+          const pPhoto = await _processImageAsync(photo.localUri);
+          const img = {
+            uri: pPhoto.uri,
+            name: photo.filename,
+            type: "image/jpg",
+          };
+          cPhotos.push(img);
+        }
+        navigation.navigate("UploadMultiple", { albums: cPhotos });
+      })
+      .catch((e) => console.log(e));
   };
 
   return (
-    <View style={{display: "flex", height: "100%"}}>
+    <View style={{ display: "flex", height: "100%" }}>
       <ImageBrowser
-        max={10}
+        max={4}
         onChange={updateHandler}
         callback={imagesCallback}
         renderSelectedComponent={renderSelectedComponent}
@@ -76,18 +98,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8.6,
     paddingVertical: 5,
     borderRadius: 50,
-    position: 'absolute',
+    position: "absolute",
     right: 3,
     bottom: 3,
-    justifyContent: 'center',
-    backgroundColor: '#0580FF'
+    justifyContent: "center",
+    backgroundColor: "#0580FF",
   },
   countBadgeText: {
-    fontWeight: 'bold',
-    alignSelf: 'center',
-    padding: 'auto',
-    color: '#ffffff'
-  }
-})
+    fontWeight: "bold",
+    alignSelf: "center",
+    padding: "auto",
+    color: "#ffffff",
+  },
+});
 
 export default MultipleImage;

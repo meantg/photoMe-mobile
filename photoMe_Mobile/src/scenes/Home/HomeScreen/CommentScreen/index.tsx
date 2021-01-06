@@ -177,7 +177,7 @@ function CommentScreen({ navigation, route }) {
         <TouchableWithoutFeedback
           onPress={Keyboard.dismiss}
         ></TouchableWithoutFeedback>
-        <ScrollView style={{ marginTop: 15 }}>
+        <ScrollView style={{ marginTop: 15, marginBottom: 80 }}>
           <Comment listCmt={listCmt}></Comment>
         </ScrollView>
       </KeyboardAvoidingView>

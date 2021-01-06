@@ -14,6 +14,7 @@ import NewProfile from "../Profile/profile";
 import CommentScreen from "./HomeScreen/CommentScreen";
 import MultipleImage from "../Upload/MultipleImage";
 import ListContact from "../Message/Contact/ListContact";
+import UploadMultiple from "../Upload/MultipleImage/UploadMultiple";
 
 const Tab = createMaterialBottomTabNavigator();
 const HomeStack = createStackNavigator();
@@ -97,7 +98,12 @@ export default function HomePage() {
             <HomeStack.Screen
               name="MultipleImage"
               component={MultipleImage}
-              options={{ headerShown: true }}
+              options={{ headerShown: true ,  headerStatusBarHeight: 0}}
+            />
+            <HomeStack.Screen
+              name="UploadMultiple"
+              component={UploadMultiple}
+              options={{headerShown : true, headerStatusBarHeight: 0}}
             />
           </HomeStack.Navigator>
         )}
