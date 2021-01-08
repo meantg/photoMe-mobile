@@ -1,2 +1,2 @@
 # photoMe-mobile
- a mobile version of photoMe 
+ <h1> a mobile version of photoMe 
