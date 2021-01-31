@@ -6,6 +6,8 @@ const height = width * 0.8;
 
 function Slider( {photos} ) {
   const images = photos;
+  console.log(images);
+  
 
   if (images && images.length) {
     return (

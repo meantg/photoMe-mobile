@@ -206,7 +206,7 @@ function ChatBox({ Contact }) {
             visible={modalVisible}
             presentationStyle="pageSheet"
             onRequestClose={() => {
-              Alert.alert("Modal has been closed.");
+              setModalVisible(false);
             }}
             style={{}}
             onShow={() => getMessage()}
@@ -225,7 +225,7 @@ function ChatBox({ Contact }) {
               ></Image>
               <Text style={styles.modalText}>{findName(Contact)}</Text>
               <KeyboardAvoidingView
-                keyboardVerticalOffset={110}
+                keyboardVerticalOffset={130}
                 style={{ flex: 1 }}
                 behavior={Platform.OS == "ios" ? "padding" : "height"}
               >

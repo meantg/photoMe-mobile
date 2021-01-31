@@ -13,6 +13,7 @@ import {
   Keyboard,
   ScrollView,
   Image,
+  KeyboardEvent
 } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Comment from "../../../../components/Card/Comment";
@@ -43,11 +44,27 @@ function CommentScreen({ navigation, route }) {
   };
 
   React.useEffect(() => {
+    Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+    Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+    
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("Comment");
+
     });
     getComments();
+    return (): void => {
+      Keyboard.removeListener('keyboardDidShow', _keyboardDidShow);
+      Keyboard.removeListener('keyboardDidHide', _keyboardDidHide);
+    };
   }, []);
+
+  const _keyboardDidShow = (e: KeyboardEvent) =>{
+    setHeight(e.endCoordinates.height);
+  }
+
+  const _keyboardDidHide = (e: KeyboardEvent) =>{
+    setHeight(0);
+  }
 
   const getComments = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -118,7 +135,7 @@ function CommentScreen({ navigation, route }) {
   };
 
   return (
-    <View style={{ display: "flex", height: "100%" }}>
+    <View style={{ display: "flex", height: "100%",flex: 1 }}>
       <TouchableOpacity
         onPress={goBack}
         style={{
@@ -141,100 +158,101 @@ function CommentScreen({ navigation, route }) {
           COMMENT
         </Text>
       </TouchableOpacity>
-      <View style={{ marginTop: 10 }}>
-        <Text style={styles.bodyText}>
-          <Text style={styles.like}> {album.photographer.name}</Text>{" "}
-          {album.title}
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            color: "#424242",
-            marginLeft: 15,
-            marginTop: -15,
-            marginBottom: 10,
-            fontStyle: "italic",
-          }}
-        >
-          {album.albumType}
-        </Text>
-        <Text
-          style={{
-            marginLeft: 5,
-            marginBottom: 5,
-            fontSize: 15,
-            letterSpacing: 2,
-            fontWeight: "bold",
-          }}
-        >
-          OTHER COMMENT
-        </Text>
-      </View>
+
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={{ flex: 1,
+          justifyContent: 'flex-end' }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={64}
       >
+        <View style={{ marginTop: 10 }}>
+          <Text style={styles.bodyText}>
+            <Text style={styles.like}> {album.photographer.name}</Text>{" "}
+            {album.title}
+          </Text>
+          <Text
+            style={{
+              fontSize: 16,
+              color: "#424242",
+              marginLeft: 15,
+              marginTop: -15,
+              marginBottom: 10,
+              fontStyle: "italic",
+            }}
+          >
+            {album.albumType}
+          </Text>
+          <Text
+            style={{
+              marginLeft: 5,
+              marginBottom: 5,
+              fontSize: 15,
+              letterSpacing: 2,
+              fontWeight: "bold",
+            }}
+          >
+            OTHER COMMENT
+          </Text>
+        </View>
         <TouchableWithoutFeedback
           onPress={Keyboard.dismiss}
         ></TouchableWithoutFeedback>
         <ScrollView style={{ marginTop: 15, marginBottom: 80 }}>
           <Comment listCmt={listCmt}></Comment>
         </ScrollView>
+        <View
+          style={{
+            flexDirection: "row",
+            backgroundColor: "#679b9b",
+            bottom: inputHeight,
+            padding: 20,
+            position: "absolute",
+          }}
+        >
+          <Image
+            source={{ uri: user.avatarUrl }}
+            resizeMode="contain"
+            style={{
+              width: 40,
+              height: 40,
+              borderWidth: 1,
+              borderRadius: 90,
+              marginRight: 5,
+              borderColor: "rgba(236,231,231,1)",
+            }}
+          ></Image>
+          <TextInput
+            // value={this.state.email}
+            style={{
+              borderWidth: 1,
+              borderRadius: 20,
+              marginRight: 20,
+              padding: 10,
+              borderColor: "white",
+              color: "white",
+              height: 40,
+              width: "85%",
+            }}
+            placeholder="WRITE YOUR COMMENTS HERE"
+            placeholderTextColor="white"
+            onChangeText={(text) => {
+              setInput(text);
+            }}
+            keyboardAppearance="dark"
+            clearButtonMode="always"
+            value={cmtInput}
+            blurOnSubmit={false}
+            onSubmitEditing={onPostComment}
+            onFocus={() => { _keyboardDidShow}}
+            onBlur={() => {
+              setHeight(0)
+            }}
+            maxLength={80}
+            returnKeyType="send"
+            autoFocus={true}
+          />
+        </View>
       </KeyboardAvoidingView>
-      <View
-        style={{
-          flexDirection: "row",
-          backgroundColor: "#679b9b",
-          bottom: inputHeight,
-          padding: 20,
-          position: "absolute",
-        }}
-      >
-        <Image
-          source={{ uri: user.avatarUrl }}
-          resizeMode="contain"
-          style={{
-            width: 40,
-            height: 40,
-            borderWidth: 1,
-            borderRadius: 90,
-            marginRight: 5,
-            borderColor: "rgba(236,231,231,1)",
-          }}
-        ></Image>
-        <TextInput
-          // value={this.state.email}
-          style={{
-            borderWidth: 1,
-            borderRadius: 20,
-            marginRight: 20,
-            padding: 10,
-            borderColor: "white",
-            color: "white",
-            height: 40,
-            width: "85%",
-          }}
-          placeholder="WRITE YOUR COMMENTS HERE"
-          placeholderTextColor="white"
-          onChangeText={(text) => {
-            setInput(text);
-          }}
-          keyboardAppearance="dark"
-          clearButtonMode="always"
-          value={cmtInput}
-          blurOnSubmit={false}
-          onSubmitEditing={onPostComment}
-          onFocus={() => {
-            setHeight(270);
-          }}
-          onBlur={() => {
-            setHeight(0);
-          }}
-          maxLength={80}
-          returnKeyType="send"
-          autoFocus={true}
-        />
-      </View>
     </View>
   );
 }

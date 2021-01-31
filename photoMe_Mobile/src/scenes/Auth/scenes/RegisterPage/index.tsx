@@ -66,10 +66,10 @@ export default function RegisterPage({ navigation }: any) {
               ],
               { cancelable: false }
             );
-          } else {
+          } else if(res.status==400) {
             Alert.alert(
-              "Email or Password is incorrect",
-              "Please enter correct email and password !",
+              "This account is already exist !",
+              "Please use another UserName !",
               [{ text: "OK", onPress: () => console.log("OK Pressed") }],
               { cancelable: false }
             );

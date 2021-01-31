@@ -23,6 +23,7 @@ import { AntDesign, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import AlbumCard from "../../components/AlbumCard";
 import CardItem from "../../components/Card";
+import SpecificCard from "../../components/SpecificCard/SpecificCard";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -57,10 +58,12 @@ function NewProfile({ navigation }: any) {
         },
       };
       const url =
-        CONNECTION_STRING.string + "user/" + decoded.nameid + "/albums/all";
+        CONNECTION_STRING.string + "user/"+ decoded.nameid  + "/albums/?userId=" + user.id;
       const response = await Axios.get(url, config);
       if (response.status == 200) {
         const album = response.data;
+        console.log(album);
+        
         setAlbums(album);
         setLoading(false);
       }
@@ -138,28 +141,7 @@ function NewProfile({ navigation }: any) {
           <Entypo name="new-message" size={35} color="#fff" />
         </TouchableOpacity>
         <View style={{}}>
-          <View style={styles.listAlbums}>
-            <Text
-              style={{
-                position: "absolute",
-                marginTop: 40,
-                marginLeft: -10,
-                fontSize: 20,
-                transform: [{ rotate: "90deg" }],
-              }}
-            >
-              Albums
-            </Text>
-            <ScrollView
-              style={{ marginLeft: 50, backgroundColor: "#ffeadb" }}
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-            >
-              {albums.map((album, index) => {
-                return <AlbumCard key={index} album={album}></AlbumCard>;
-              })}
-            </ScrollView>
-          </View>
+          
           <View style={styles.listPhotos}>
             <Text
               style={{
@@ -171,10 +153,10 @@ function NewProfile({ navigation }: any) {
               Photos
             </Text>
             <View>
-              {albums.map((album) => {
+              {albums.map((album, index) => {
                 return (
-                  <CardItem
-                    key={album["id"]}
+                  <SpecificCard
+                    key={index}
                     album={album}
                     avatarUrl={user["avatarUrl"]}
                   />

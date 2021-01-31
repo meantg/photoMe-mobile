@@ -31,6 +31,7 @@ export default function LoginPage({ navigation }: any) {
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("LoginPage");
+      AsyncStorage.clear()
     });
 
     return unsubscribe;

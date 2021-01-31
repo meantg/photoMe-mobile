@@ -73,6 +73,7 @@ function HomeScreen({ navigation, route }) {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("HomePage");
       console.log(user);
+      
     });
     getUser();
     initNewfeed();

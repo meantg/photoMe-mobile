@@ -4,9 +4,9 @@
     "slug": "photoMe_Mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/iconapp.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/iconapp.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

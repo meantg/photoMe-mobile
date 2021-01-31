@@ -126,7 +126,7 @@ function CardItem({ album, avatarUrl }) {
       <View style={styles.cardItem1Style}>
         <View style={styles.headerStyle}>
           <Image
-            source={{uri : photographer.avatarUrl}}
+            source={{}}
             style={styles.leftImage}
           ></Image>
           <View style={styles.headerContent}>

@@ -6,7 +6,7 @@ function AlbumCard({ album }) {
   return (
     <View style={styles.imgContainer}>
       <Image
-        source={{ uri: album.photos[0].url }}
+        source={{ uri : album.url }}
         resizeMode="contain"
         style={styles.image}
       ></Image>
